@@ -365,8 +365,8 @@ const KeyValueInput: React.FC<{
 const App: React.FC = () => {
   const [viewMode, setViewMode] = useState<"form" | "json">("form");
   const [config, setConfig] = useState<TenantConfig>(defaultConfig);
-  const [selectedTenantFile, setSelectedTenantFile] =
-    useState<string>("main-config");
+  const [selectedTenantFile, setSelectedTenantFile] = useState<string>("");
+  const [showConfigForm, setShowConfigForm] = useState<boolean>(false);
 
   // Available tenant configuration files
   const tenantFiles = [
@@ -478,6 +478,24 @@ const App: React.FC = () => {
     }
   };
 
+  const handleFileSelection = (fileKey: string) => {
+    setSelectedTenantFile(fileKey);
+    if (fileKey) {
+      loadTenantFile(fileKey);
+    }
+  };
+
+  const handleSubmitSelection = () => {
+    if (selectedTenantFile) {
+      setShowConfigForm(true);
+    }
+  };
+
+  const handleBackToSelection = () => {
+    setShowConfigForm(false);
+    setSelectedTenantFile("");
+  };
+
   const saveTenantFile = () => {
     if (selectedTenantFile === "main-config") {
       downloadConfig();
@@ -578,52 +596,50 @@ const App: React.FC = () => {
       <header className="header">
         <h1>Config Ninja</h1>
         <p className="subtitle">Advanced Tenant Configuration Manager</p>
-        <div className="view-toggle">
-          <button
-            className={viewMode === "form" ? "active" : ""}
-            onClick={() => setViewMode("form")}
-          >
-            📝 Form View
-          </button>
-          <button
-            className={viewMode === "json" ? "active" : ""}
-            onClick={() => setViewMode("json")}
-          >
-            📄 JSON View
-          </button>
-        </div>
+        {showConfigForm && (
+          <div className="view-toggle">
+            <button
+              className={viewMode === "form" ? "active" : ""}
+              onClick={() => setViewMode("form")}
+            >
+              📝 Form View
+            </button>
+            <button
+              className={viewMode === "json" ? "active" : ""}
+              onClick={() => setViewMode("json")}
+            >
+              📄 JSON View
+            </button>
+          </div>
+        )}
       </header>
 
       <main className="main">
-        {viewMode === "form" ? (
-          <div className="form-container">
-            <div className="form-header">
-              <h2>📋 Tenant Configuration</h2>
+        {!showConfigForm ? (
+          // File Selection Screen
+          <div className="file-selection-container">
+            <div className="file-selection-header">
+              <h2>� Select Configuration File</h2>
               <p>
-                Configure your multi-tenant platform settings with detailed
-                controls
+                Choose which tenant configuration file you want to load and
+                modify
               </p>
             </div>
 
-            {/* Tenant File Selector */}
-            <div className="form-section">
-              <h3>📁 Configuration File Selection</h3>
+            <div className="file-selection-form">
               <div className="form-group">
-                <label className="field-label">
-                  Select Configuration File *
-                </label>
+                <label className="field-label">Configuration File *</label>
                 <p className="field-description">
-                  Choose which tenant configuration file to load and modify
+                  Select from main configuration or specific fintech customer
+                  environments
                 </p>
                 <select
                   value={selectedTenantFile}
-                  onChange={(e) => {
-                    setSelectedTenantFile(e.target.value);
-                    loadTenantFile(e.target.value);
-                  }}
-                  className="text-input"
+                  onChange={(e) => handleFileSelection(e.target.value)}
+                  className="text-input large-select"
                   required
                 >
+                  <option value="">-- Select a configuration file --</option>
                   {tenantFiles.map((file) => (
                     <option key={file.value} value={file.value}>
                       {file.label}
@@ -631,6 +647,31 @@ const App: React.FC = () => {
                   ))}
                 </select>
               </div>
+
+              {selectedTenantFile && (
+                <div className="file-selection-actions">
+                  <button
+                    onClick={handleSubmitSelection}
+                    className="primary-button large-button"
+                  >
+                    📝 Load & Edit Configuration
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        ) : viewMode === "form" ? (
+          // Configuration Form
+          <div className="form-container">
+            <div className="form-header">
+              <button onClick={handleBackToSelection} className="back-button">
+                ← Back to File Selection
+              </button>
+              <h2>📋 Tenant Configuration</h2>
+              <p>
+                Editing:{" "}
+                {tenantFiles.find((f) => f.value === selectedTenantFile)?.label}
+              </p>
             </div>
 
             {/* Features Section */}
@@ -1109,15 +1150,23 @@ const App: React.FC = () => {
             </div>
           </div>
         ) : (
+          // JSON View
           <div className="json-container">
             <div className="json-header">
+              <button onClick={handleBackToSelection} className="back-button">
+                ← Back to File Selection
+              </button>
               <h3>📄 Generated Configuration</h3>
+              <p>
+                Viewing:{" "}
+                {tenantFiles.find((f) => f.value === selectedTenantFile)?.label}
+              </p>
               <div className="json-actions">
                 <button onClick={copyToClipboard} className="secondary-button">
                   📋 Copy
                 </button>
-                <button onClick={downloadConfig} className="primary-button">
-                  💾 Download
+                <button onClick={saveTenantFile} className="primary-button">
+                  💾 Save
                 </button>
               </div>
             </div>
