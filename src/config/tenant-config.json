@@ -18,10 +18,6 @@
     "favicon": "/assets/default/favicon.ico",
     "title": "BASS Platform"
   },
-  "support": {
-    "email": "support@bass.io",
-    "docsUrl": "https://docs.bass.io"
-  },
   "tenants": [
     {
       "tenantId": "acme-corp",
