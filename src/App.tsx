@@ -1,5 +1,7 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import './App.css'
+import { getConfigurationFiles, readConfigFile, ConfigFile } from './utils/fileSystem'
+import DirectoryBrowser from './components/DirectoryBrowser'
 
 interface TenantConfig {
   features: {
@@ -367,31 +369,45 @@ const App: React.FC = () => {
   const [config, setConfig] = useState<TenantConfig>(defaultConfig);
   const [selectedTenantFile, setSelectedTenantFile] = useState<string>("");
   const [showConfigForm, setShowConfigForm] = useState<boolean>(false);
+  const [tenantFiles, setTenantFiles] = useState<ConfigFile[]>([]);
+  const [currentDirectory, setCurrentDirectory] = useState<string>(
+    "/Users/sachinkumar/Documents/config-ninja/src/config"
+  );
+  const [showDirectoryBrowser, setShowDirectoryBrowser] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
-  // Available tenant configuration files
-  const tenantFiles = [
-    { value: "main-config", label: "Main Configuration (tenant-config.json)" },
-    { value: "nexus-bank-development", label: "🏦 Nexus Bank - Development" },
-    { value: "nexus-bank-staging", label: "🏦 Nexus Bank - Staging" },
-    { value: "nexus-bank-production", label: "🏦 Nexus Bank - Production" },
-    { value: "quantum-pay-development", label: "💰 Quantum Pay - Development" },
-    { value: "quantum-pay-staging", label: "💰 Quantum Pay - Staging" },
-    { value: "quantum-pay-production", label: "💰 Quantum Pay - Production" },
-    {
-      value: "stellar-finance-development",
-      label: "📈 Stellar Finance - Development",
-    },
-    {
-      value: "stellar-finance-production",
-      label: "📈 Stellar Finance - Production",
-    },
-    {
-      value: "crypto-vault-development",
-      label: "🔐 Crypto Vault - Development",
-    },
-    { value: "crypto-vault-staging", label: "🔐 Crypto Vault - Staging" },
-    { value: "crypto-vault-production", label: "🔐 Crypto Vault - Production" },
-  ];
+  // Load configuration files when directory changes
+  useEffect(() => {
+    loadConfigurationFiles();
+  }, [currentDirectory]);
+
+  const loadConfigurationFiles = async () => {
+    setLoading(true);
+    try {
+      const configFiles = await getConfigurationFiles(currentDirectory);
+      
+      // Add main config option
+      const mainConfig: ConfigFile = {
+        value: "main-config",
+        label: "📄 Main Configuration (tenant-config.json)",
+        path: `${currentDirectory}/tenant-config.json`
+      };
+      
+      setTenantFiles([mainConfig, ...configFiles]);
+    } catch (error) {
+      console.error('Error loading configuration files:', error);
+      // Fallback to empty array or show error message
+      setTenantFiles([
+        {
+          value: "main-config",
+          label: "� Main Configuration (tenant-config.json)",
+          path: `${currentDirectory}/tenant-config.json`
+        }
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const loadTenantFile = async (fileKey: string) => {
     try {
@@ -400,81 +416,30 @@ const App: React.FC = () => {
         return;
       }
 
-      // Parse customer and environment from file key
-      const parts = fileKey.split("-");
-      let customer = "";
-      let environment = "";
-
-      if (parts.length >= 2) {
-        // Handle multi-word customer names
-        if (parts[0] === "nexus") {
-          customer = "nexus-bank";
-          environment = parts.slice(2).join("-");
-        } else if (parts[0] === "quantum") {
-          customer = "quantum-pay";
-          environment = parts.slice(2).join("-");
-        } else if (parts[0] === "stellar") {
-          customer = "stellar-finance";
-          environment = parts.slice(2).join("-");
-        } else if (parts[0] === "crypto") {
-          customer = "crypto-vault";
-          environment = parts.slice(2).join("-");
-        }
+      // Find the selected file from the tenant files list
+      const selectedFile = tenantFiles.find(file => file.value === fileKey);
+      if (!selectedFile) {
+        console.error('Selected file not found');
+        return;
       }
 
-      // Find matching tenant from main config
-      const matchingTenant = defaultConfig.tenants.find(
-        (t) =>
-          (t.customer === customer ||
-            t.customer.includes(customer.split("-")[0])) &&
-          t.environment === environment
-      );
-
-      if (matchingTenant) {
-        // Create a single-tenant config for editing
-        const singleTenantConfig: TenantConfig = {
-          ...defaultConfig,
-          tenants: [matchingTenant],
-        };
-        setConfig(singleTenantConfig);
+      // Load the configuration file
+      const configData = await readConfigFile(selectedFile.path);
+      
+      // Update config with loaded data
+      const newConfig = { ...defaultConfig };
+      if (configData.tenantId) {
+        // Single tenant config file
+        newConfig.tenants = [configData];
       } else {
-        // Create a new tenant config based on the customer/environment
-        const newTenant = {
-          tenantId: `${customer}-${environment}`,
-          tenantName: `${
-            customer.charAt(0).toUpperCase() +
-            customer.slice(1).replace("-", " ")
-          } - ${environment.charAt(0).toUpperCase() + environment.slice(1)}`,
-          tenantImage: `/assets/tenants/${customer}/logo.png`,
-          customer: customer,
-          environment: environment,
-          theme: {
-            primaryColor: "#4b5563",
-            secondaryColor: "#6b7280",
-            fontFamily: "Inter, sans-serif",
-          },
-          features: {
-            enabledModules: ["reporting", "analytics"],
-            customSettings: {
-              debugMode: environment === "development",
-              logLevel:
-                environment === "development"
-                  ? "debug"
-                  : environment === "production"
-                  ? "error"
-                  : "info",
-            },
-          },
-        };
-
-        const singleTenantConfig: TenantConfig = {
-          ...defaultConfig,
-          tenants: [newTenant],
-        };
-        setConfig(singleTenantConfig);
+        // Full configuration file
+        Object.assign(newConfig, configData);
       }
+      
+      setConfig(newConfig);
     } catch (error) {
-      console.error("Error loading tenant file:", error);
+      console.error('Error loading tenant file:', error);
+      // Handle error - maybe show a notification
     }
   };
 
@@ -483,6 +448,31 @@ const App: React.FC = () => {
     if (fileKey) {
       loadTenantFile(fileKey);
     }
+  };
+
+  const handleDirectoryChange = (newPath: string) => {
+    setCurrentDirectory(newPath);
+  };
+
+  const handleFileSelect = (filePath: string) => {
+    // When a file is selected from the directory browser, add it to the dropdown
+    const fileName = filePath.split('/').pop() || '';
+    const newConfigFile: ConfigFile = {
+      value: filePath,
+      label: `📄 ${fileName}`,
+      path: filePath
+    };
+    
+    // Add to tenant files if not already present
+    const exists = tenantFiles.some(file => file.path === filePath);
+    if (!exists) {
+      setTenantFiles(prev => [...prev, newConfigFile]);
+    }
+    
+    // Select this file
+    setSelectedTenantFile(filePath);
+    loadTenantFile(filePath);
+    setShowDirectoryBrowser(false);
   };
 
   const handleSubmitSelection = () => {
@@ -630,22 +620,51 @@ const App: React.FC = () => {
               <div className="form-group">
                 <label className="field-label">Configuration File *</label>
                 <p className="field-description">
-                  Select from main configuration or specific fintech customer
-                  environments
+                  Select from discovered configuration files or browse to load files from anywhere
                 </p>
                 <select
                   value={selectedTenantFile}
                   onChange={(e) => handleFileSelection(e.target.value)}
                   className="text-input large-select"
                   required
+                  disabled={loading}
                 >
-                  <option value="">-- Select a configuration file --</option>
+                  <option value="">{loading ? "Loading files..." : "-- Select a configuration file --"}</option>
                   {tenantFiles.map((file) => (
                     <option key={file.value} value={file.value}>
                       {file.label}
                     </option>
                   ))}
                 </select>
+              </div>
+              
+              <div className="form-group">
+                <div className="directory-browser-section">
+                  <div className="current-directory">
+                    <label className="field-label">Current Directory</label>
+                    <div className="directory-path">
+                      <code>{currentDirectory}</code>
+                      <button
+                        onClick={() => setShowDirectoryBrowser(!showDirectoryBrowser)}
+                        className="secondary-button"
+                        style={{ marginLeft: '1rem' }}
+                      >
+                        {showDirectoryBrowser ? '📁 Hide Browser' : '🔍 Browse Files'}
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {showDirectoryBrowser && (
+                    <div className="directory-browser-container">
+                      <DirectoryBrowser
+                        currentPath={currentDirectory}
+                        onPathChange={handleDirectoryChange}
+                        onFileSelect={handleFileSelect}
+                        showOnlyConfigFiles={true}
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
 
               {selectedTenantFile && (
