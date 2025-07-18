@@ -1,0 +1,43 @@
+{
+  "features": {
+    "enabledModules": ["reporting", "analytics", "audit-log"],
+    "betaFeatures": ["ai-suggestions", "tenant-isolation"],
+    "roles": ["admin", "editor", "viewer"],
+    "enableAdvancedReporting": true,
+    "useAIInsights": true
+  },
+  "api": {
+    "baseUrl": "https://api.bass.io/v1",
+    "authUrl": "https://auth.bass.io/oauth2/token"
+  },
+  "auth": {
+    "clientId": "bass-default-client-id",
+    "scopes": ["read:data", "write:data"]
+  },
+  "branding": {
+    "favicon": "/assets/default/favicon.ico",
+    "title": "BASS Platform"
+  },
+  "support": {
+    "email": "support@bass.io",
+    "docsUrl": "https://docs.bass.io"
+  },
+  "tenants": [
+    {
+      "tenantId": "acme-corp",
+      "tenantName": "Acme Corporation",
+      "tenantImage": "/assets/tenants/acme/image.png",
+      "theme": {
+        "primaryColor": "#0033cc"
+      }
+    },
+    {
+      "tenantId": "globex-inc",
+      "tenantName": "Globex Inc.",
+      "tenantImage": "/assets/tenants/globex/image.png",
+      "theme": {
+        "primaryColor": "#cc0000"
+      }
+    }
+  ]
+}
