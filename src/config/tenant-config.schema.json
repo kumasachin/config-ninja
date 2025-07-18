@@ -4,240 +4,183 @@
   "title": "BASS Platform Tenant Configuration",
   "description": "Configuration schema for BASS platform tenant settings and features",
   "type": "object",
-  "required": ["features", "api", "auth", "branding", "tenants"],
+  "required": [
+    "features",
+    "api",
+    "auth",
+    "branding",
+    "tenants"
+  ],
   "properties": {
     "features": {
       "type": "object",
       "description": "Feature flags and enabled modules configuration",
-      "required": ["enabledModules", "roles"],
       "properties": {
         "enabledModules": {
           "type": "array",
           "description": "List of enabled modules for the platform",
-          "items": {
-            "type": "string",
-            "enum": ["reporting", "analytics", "audit-log", "notifications", "user-management"]
-          },
-          "uniqueItems": true,
-          "minItems": 1
+          "enum": [
+            "reporting",
+            "analytics",
+            "audit-log",
+            "notifications",
+            "user-management"
+          ]
         },
         "betaFeatures": {
           "type": "array",
           "description": "List of beta features to enable",
-          "items": {
-            "type": "string",
-            "enum": ["ai-suggestions", "tenant-isolation", "advanced-search", "real-time-sync"]
-          },
-          "uniqueItems": true
+          "enum": [
+            "ai-suggestions",
+            "tenant-isolation",
+            "advanced-search",
+            "real-time-sync"
+          ]
         },
         "roles": {
           "type": "array",
           "description": "Available user roles in the system",
-          "items": {
-            "type": "string",
-            "enum": ["admin", "editor", "viewer", "manager", "guest"]
-          },
-          "uniqueItems": true,
-          "minItems": 1
+          "enum": [
+            "admin",
+            "editor",
+            "viewer",
+            "manager",
+            "guest"
+          ]
         },
         "enableAdvancedReporting": {
           "type": "boolean",
-          "description": "Whether advanced reporting features are enabled",
-          "default": false
+          "description": "Whether advanced reporting features are enabled"
         },
         "useAIInsights": {
           "type": "boolean",
-          "description": "Whether AI-powered insights are enabled",
-          "default": false
+          "description": "Whether AI-powered insights are enabled"
         }
-      }
+      },
+      "required": [
+        "enabledModules",
+        "roles"
+      ]
     },
     "api": {
       "type": "object",
       "description": "API configuration settings",
-      "required": ["baseUrl"],
       "properties": {
         "baseUrl": {
           "type": "string",
-          "format": "uri",
-          "description": "Base URL for the API endpoints",
-          "pattern": "^https://.*"
+          "description": "Base URL for the API endpoints"
         },
         "authUrl": {
           "type": "string",
-          "format": "uri",
-          "description": "URL for authentication endpoint",
-          "pattern": "^https://.*"
+          "description": "URL for authentication endpoint"
         },
         "timeout": {
           "type": "integer",
-          "description": "API request timeout in milliseconds",
-          "minimum": 1000,
-          "maximum": 60000,
-          "default": 30000
+          "description": "API request timeout in milliseconds"
         },
         "retryAttempts": {
           "type": "integer",
-          "description": "Number of retry attempts for failed requests",
-          "minimum": 0,
-          "maximum": 5,
-          "default": 3
+          "description": "Number of retry attempts for failed requests"
         }
-      }
+      },
+      "required": [
+        "baseUrl"
+      ]
     },
     "auth": {
       "type": "object",
       "description": "Authentication configuration",
-      "required": ["clientId", "scopes"],
       "properties": {
         "clientId": {
           "type": "string",
-          "description": "OAuth2 client identifier",
-          "minLength": 1
+          "description": "OAuth2 client identifier"
         },
         "scopes": {
           "type": "array",
-          "description": "Required OAuth2 scopes",
-          "items": {
-            "type": "string",
-            "pattern": "^(read|write|admin):[a-z-]+$"
-          },
-          "uniqueItems": true,
-          "minItems": 1
+          "description": "Required OAuth2 scopes"
         },
         "tokenLifetime": {
           "type": "integer",
-          "description": "Token lifetime in seconds",
-          "minimum": 300,
-          "maximum": 86400,
-          "default": 3600
+          "description": "Token lifetime in seconds"
         }
-      }
+      },
+      "required": [
+        "clientId",
+        "scopes"
+      ]
     },
     "branding": {
       "type": "object",
       "description": "Branding and UI configuration",
-      "required": ["title"],
       "properties": {
         "favicon": {
           "type": "string",
-          "description": "Path to favicon file",
-          "pattern": "^/.*\\.(ico|png|svg)$"
+          "description": "Path to favicon file"
         },
         "title": {
           "type": "string",
-          "description": "Application title",
-          "minLength": 1,
-          "maxLength": 100
+          "description": "Application title"
         },
         "logo": {
           "type": "string",
-          "description": "Path to logo file",
-          "pattern": "^/.*\\.(png|svg|jpg|jpeg)$"
+          "description": "Path to logo file"
         },
         "theme": {
           "type": "object",
-          "description": "Global theme settings",
-          "properties": {
-            "primaryColor": {
-              "type": "string",
-              "pattern": "^#[0-9a-fA-F]{6}$",
-              "description": "Primary theme color in hex format"
-            },
-            "secondaryColor": {
-              "type": "string",
-              "pattern": "^#[0-9a-fA-F]{6}$",
-              "description": "Secondary theme color in hex format"
-            }
-          }
+          "description": "Global theme settings"
         }
-      }
+      },
+      "required": [
+        "title"
+      ]
     },
     "tenants": {
       "type": "array",
       "description": "List of configured tenants",
       "items": {
         "type": "object",
-        "required": ["tenantId", "tenantName", "customer", "environment"],
         "properties": {
           "tenantId": {
             "type": "string",
-            "description": "Unique tenant identifier",
-            "pattern": "^[a-z0-9-]+$",
-            "minLength": 2,
-            "maxLength": 50
+            "description": "Unique tenant identifier"
           },
           "tenantName": {
             "type": "string",
-            "description": "Human-readable tenant name",
-            "minLength": 1,
-            "maxLength": 100
+            "description": "Human-readable tenant name"
           },
           "customer": {
             "type": "string",
-            "description": "Customer organization name",
-            "minLength": 1,
-            "maxLength": 100
+            "description": "Customer organization name"
           },
           "environment": {
             "type": "string",
             "description": "Deployment environment",
-            "enum": ["development", "staging", "production"]
+            "enum": [
+              "development",
+              "staging",
+              "production"
+            ]
           },
           "tenantImage": {
             "type": "string",
-            "description": "Path to tenant logo/image",
-            "pattern": "^/.*\\.(png|svg|jpg|jpeg)$"
+            "description": "Path to tenant logo/image"
           },
           "theme": {
             "type": "object",
-            "description": "Tenant-specific theme overrides",
-            "properties": {
-              "primaryColor": {
-                "type": "string",
-                "pattern": "^#[0-9a-fA-F]{6}$",
-                "description": "Primary color for this tenant"
-              },
-              "secondaryColor": {
-                "type": "string",
-                "pattern": "^#[0-9a-fA-F]{6}$",
-                "description": "Secondary color for this tenant"
-              },
-              "fontFamily": {
-                "type": "string",
-                "description": "Custom font family for this tenant"
-              }
-            }
+            "description": "Tenant-specific theme overrides"
           },
           "features": {
             "type": "object",
-            "description": "Tenant-specific feature overrides",
-            "properties": {
-              "enabledModules": {
-                "type": "array",
-                "items": {
-                  "type": "string",
-                  "enum": [
-                    "reporting",
-                    "analytics",
-                    "audit-log",
-                    "notifications",
-                    "user-management"
-                  ]
-                },
-                "uniqueItems": true
-              },
-              "customSettings": {
-                "type": "object",
-                "description": "Tenant-specific custom settings",
-                "additionalProperties": true
-              }
-            }
+            "description": "Tenant-specific feature overrides"
           }
-        }
-      },
-      "minItems": 1,
-      "uniqueItems": true
+        },
+        "required": [
+          "tenantId",
+          "tenantName",
+          "customer",
+          "environment"
+        ]
+      }
     }
   },
   "additionalProperties": false
