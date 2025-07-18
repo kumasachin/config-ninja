@@ -1,0 +1,145 @@
+.app {
+  min-height: 100vh;
+  background: #f8fafc;
+}
+
+.header {
+  background: #667eea;
+  color: white;
+  padding: 1rem;
+  text-align: center;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.main {
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.templates h2 {
+  color: #2d3748;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.templates-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.template-card {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 2px solid #e2e8f0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.template-card:hover {
+  border-color: #667eea;
+}
+
+.template-card.selected {
+  border-color: #667eea;
+  background: #f7fafc;
+}
+
+.template-card h3 {
+  margin: 0 0 0.5rem 0;
+  color: #2d3748;
+  font-size: 1rem;
+}
+
+.format-badge {
+  background: #667eea;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.editor {
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+}
+
+.editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: #f7fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.editor-header h3 {
+  margin: 0;
+  color: #2d3748;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.actions button {
+  padding: 0.5rem 1rem;
+  border: 1px solid #e2e8f0;
+  background: white;
+  color: #4a5568;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.actions button:hover {
+  background: #f7fafc;
+}
+
+.actions button.primary {
+  background: #667eea;
+  color: white;
+  border-color: #667eea;
+}
+
+.actions button.primary:hover {
+  background: #5a67d8;
+}
+
+.config-editor {
+  width: 100%;
+  height: 300px;
+  padding: 1rem;
+  border: none;
+  background: #f8fafc;
+  font-family: 'Monaco', 'Courier New', monospace;
+  font-size: 14px;
+  resize: vertical;
+  outline: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
