@@ -4,6 +4,7 @@ import morgan from 'morgan'
 import path from 'path'
 import fs from 'fs'
 import { fileURLToPath } from 'url'
+import { exec } from "child_process";
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -255,6 +256,62 @@ app.post('/api/write-file', (req, res) => {
   } catch (error) {
     console.error('Error writing file:', error);
     res.status(500).json({ error: 'Failed to write file' });
+  }
+});
+
+// Endpoint to open a folder in system file explorer
+app.post('/api/open-folder', (req, res) => {
+  try {
+    const { path: folderPath } = req.body;
+    
+    if (!folderPath) {
+      return res.status(400).json({ error: 'Path is required' });
+    }
+
+    if (!fs.existsSync(folderPath)) {
+      return res.status(404).json({ error: 'Folder not found' });
+    }
+
+    const stats = fs.statSync(folderPath);
+    if (!stats.isDirectory()) {
+      return res.status(400).json({ error: 'Path is not a directory' });
+    }
+
+    // Determine the command based on the operating system
+    let command;
+    const platform = process.platform;
+    
+    switch (platform) {
+      case 'darwin': // macOS
+        command = `open "${folderPath}"`;
+        break;
+      case 'win32': // Windows
+        command = `explorer "${folderPath}"`;
+        break;
+      case 'linux': // Linux
+        command = `xdg-open "${folderPath}"`;
+        break;
+      default:
+        return res.status(400).json({ error: 'Unsupported operating system' });
+    }
+
+    exec(command, (error, stdout, stderr) => {
+      if (error) {
+        console.error('Error opening folder:', error);
+        return res.status(500).json({ error: 'Failed to open folder' });
+      }
+      
+      res.json({ 
+        success: true, 
+        message: 'Folder opened successfully',
+        path: folderPath,
+        platform 
+      });
+    });
+
+  } catch (error) {
+    console.error('Error opening folder:', error);
+    res.status(500).json({ error: 'Failed to open folder' });
   }
 });
 

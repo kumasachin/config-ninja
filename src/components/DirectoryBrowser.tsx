@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { FileSystemItem, scanDirectory, validatePath } from '../utils/fileSystem';
+import {
+  FileSystemItem,
+  scanDirectory,
+  validatePath,
+  openFolderInExplorer,
+} from "../utils/fileSystem";
 
 interface DirectoryBrowserProps {
   currentPath: string;
@@ -60,6 +65,23 @@ export const DirectoryBrowser: React.FC<DirectoryBrowserProps> = ({
     }
   };
 
+  const handleOpenInExplorer = async (
+    item: FileSystemItem,
+    event: React.MouseEvent
+  ) => {
+    event.stopPropagation(); // Prevent navigation when clicking the open button
+
+    try {
+      const success = await openFolderInExplorer(item.path);
+      if (!success) {
+        alert("Failed to open folder in system explorer");
+      }
+    } catch (error) {
+      console.error("Error opening folder:", error);
+      alert("Failed to open folder in system explorer");
+    }
+  };
+
   const handleManualPathSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const trimmedPath = manualPath.trim();
@@ -97,7 +119,7 @@ export const DirectoryBrowser: React.FC<DirectoryBrowserProps> = ({
     <div className="directory-browser">
       <div className="directory-browser-header">
         <h3>📂 Directory Browser</h3>
-        
+
         {/* Manual path input */}
         <form onSubmit={handleManualPathSubmit} className="manual-path-form">
           <div className="path-input-group">
@@ -120,11 +142,29 @@ export const DirectoryBrowser: React.FC<DirectoryBrowserProps> = ({
         <div className="current-path">
           <span className="path-label">Current path:</span>
           <code className="path-display">{currentPath}</code>
-          {currentPath !== '/' && (
-            <button onClick={navigateToParent} className="parent-button">
-              ↑ Parent
+          <div className="path-actions">
+            {currentPath !== "/" && (
+              <button onClick={navigateToParent} className="parent-button">
+                ↑ Parent
+              </button>
+            )}
+            <button
+              onClick={(e) =>
+                handleOpenInExplorer(
+                  {
+                    name: currentPath.split("/").pop() || "Root",
+                    path: currentPath,
+                    type: "directory",
+                  },
+                  e
+                )
+              }
+              className="open-current-button"
+              title="Open current directory in system file explorer"
+            >
+              🔗 Open
             </button>
-          )}
+          </div>
         </div>
       </div>
 
@@ -140,7 +180,10 @@ export const DirectoryBrowser: React.FC<DirectoryBrowserProps> = ({
           <div className="directory-error">
             <span className="error-icon">⚠️</span>
             <span>{error}</span>
-            <button onClick={() => loadDirectory(currentPath)} className="retry-button">
+            <button
+              onClick={() => loadDirectory(currentPath)}
+              className="retry-button"
+            >
               Retry
             </button>
           </div>
@@ -161,23 +204,34 @@ export const DirectoryBrowser: React.FC<DirectoryBrowserProps> = ({
                     className={`directory-item ${item.type}`}
                     onClick={() => navigateToDirectory(item)}
                   >
-                    <div className="item-icon">
-                      {getItemIcon(item)}
-                    </div>
+                    <div className="item-icon">{getItemIcon(item)}</div>
                     <div className="item-details">
                       <div className="item-name" title={item.name}>
                         {item.name}
                       </div>
                       <div className="item-meta">
                         <span className="item-type">{item.type}</span>
-                        {item.type === 'file' && (
-                          <span className="item-size">{formatFileSize(item)}</span>
+                        {item.type === "file" && (
+                          <span className="item-size">
+                            {formatFileSize(item)}
+                          </span>
                         )}
                         {item.isConfig && (
                           <span className="config-badge">Config</span>
                         )}
                       </div>
                     </div>
+                    {item.type === "directory" && (
+                      <div className="item-actions">
+                        <button
+                          className="open-explorer-button"
+                          onClick={(e) => handleOpenInExplorer(item, e)}
+                          title="Open in system file explorer"
+                        >
+                          🔗
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -188,10 +242,12 @@ export const DirectoryBrowser: React.FC<DirectoryBrowserProps> = ({
 
       <div className="directory-browser-footer">
         <div className="directory-stats">
-          <span>{items.filter(i => i.type === 'directory').length} directories</span>
-          <span>{items.filter(i => i.type === 'file').length} files</span>
+          <span>
+            {items.filter((i) => i.type === "directory").length} directories
+          </span>
+          <span>{items.filter((i) => i.type === "file").length} files</span>
           {showOnlyConfigFiles && (
-            <span>{items.filter(i => i.isConfig).length} config files</span>
+            <span>{items.filter((i) => i.isConfig).length} config files</span>
           )}
         </div>
       </div>

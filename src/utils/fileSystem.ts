@@ -198,10 +198,41 @@ export const readConfigFile = async (filePath: string): Promise<any> => {
 // Function to validate if a path exists and is accessible
 export const validatePath = async (path: string): Promise<boolean> => {
   try {
-    const response = await fetch(`/api/validate-path?path=${encodeURIComponent(path)}`);
-    return response.ok;
+    const response = await fetch(
+      `/api/validate-path?path=${encodeURIComponent(path)}`
+    );
+    if (!response.ok) {
+      return false;
+    }
+    const result = await response.json();
+    return result.valid;
   } catch (error) {
-    console.error('Error validating path:', error);
+    console.error("Error validating path:", error);
+    return false;
+  }
+};
+
+// Function to open a folder in the system file explorer
+export const openFolderInExplorer = async (
+  folderPath: string
+): Promise<boolean> => {
+  try {
+    const response = await fetch("/api/open-folder", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ path: folderPath }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to open folder: ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    return result.success;
+  } catch (error) {
+    console.error("Error opening folder:", error);
     return false;
   }
 };
