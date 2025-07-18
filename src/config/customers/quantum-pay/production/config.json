@@ -1,0 +1,33 @@
+{
+  "tenantId": "quantum-pay-prod",
+  "tenantName": "Quantum Pay - Production",
+  "tenantImage": "/assets/tenants/quantum-pay/logo.png",
+  "customer": "quantum-pay",
+  "environment": "production",
+  "api": {
+    "baseUrl": "https://api.quantumpay.io/v1",
+    "authUrl": "https://auth.quantumpay.io/oauth2/token",
+    "timeout": 25000,
+    "retryAttempts": 5
+  },
+  "theme": {
+    "primaryColor": "#dc2626",
+    "secondaryColor": "#ef4444",
+    "fontFamily": "Roboto, sans-serif"
+  },
+  "features": {
+    "enabledModules": ["analytics", "reporting", "notifications", "user-management"],
+    "customSettings": {
+      "debugMode": false,
+      "logLevel": "error",
+      "enableTestFeatures": false,
+      "cryptoSupport": true,
+      "testTokens": false,
+      "blockchainNetwork": "mainnet",
+      "securityLevel": "high",
+      "multiSigRequired": true,
+      "coldStorageEnabled": true,
+      "complianceMode": "crypto-regulation"
+    }
+  }
+}

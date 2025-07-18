@@ -33,6 +33,8 @@ interface TenantConfig {
     tenantId: string;
     tenantName: string;
     tenantImage?: string;
+    customer: string;
+    environment: string;
     theme?: {
       primaryColor?: string;
       secondaryColor?: string;
@@ -94,6 +96,8 @@ const defaultConfig: TenantConfig = {
       tenantId: "acme-corp",
       tenantName: "Acme Corporation",
       tenantImage: "/assets/tenants/acme/image.png",
+      customer: "acme-corp",
+      environment: "production",
       theme: {
         primaryColor: "#4b5563",
         secondaryColor: "#6b7280",
@@ -361,6 +365,140 @@ const KeyValueInput: React.FC<{
 const App: React.FC = () => {
   const [viewMode, setViewMode] = useState<"form" | "json">("form");
   const [config, setConfig] = useState<TenantConfig>(defaultConfig);
+  const [selectedTenantFile, setSelectedTenantFile] =
+    useState<string>("main-config");
+
+  // Available tenant configuration files
+  const tenantFiles = [
+    { value: "main-config", label: "Main Configuration (tenant-config.json)" },
+    { value: "nexus-bank-development", label: "🏦 Nexus Bank - Development" },
+    { value: "nexus-bank-staging", label: "🏦 Nexus Bank - Staging" },
+    { value: "nexus-bank-production", label: "🏦 Nexus Bank - Production" },
+    { value: "quantum-pay-development", label: "💰 Quantum Pay - Development" },
+    { value: "quantum-pay-staging", label: "💰 Quantum Pay - Staging" },
+    { value: "quantum-pay-production", label: "💰 Quantum Pay - Production" },
+    {
+      value: "stellar-finance-development",
+      label: "📈 Stellar Finance - Development",
+    },
+    {
+      value: "stellar-finance-production",
+      label: "📈 Stellar Finance - Production",
+    },
+    {
+      value: "crypto-vault-development",
+      label: "🔐 Crypto Vault - Development",
+    },
+    { value: "crypto-vault-staging", label: "🔐 Crypto Vault - Staging" },
+    { value: "crypto-vault-production", label: "🔐 Crypto Vault - Production" },
+  ];
+
+  const loadTenantFile = async (fileKey: string) => {
+    try {
+      if (fileKey === "main-config") {
+        setConfig(defaultConfig);
+        return;
+      }
+
+      // Parse customer and environment from file key
+      const parts = fileKey.split("-");
+      let customer = "";
+      let environment = "";
+
+      if (parts.length >= 2) {
+        // Handle multi-word customer names
+        if (parts[0] === "nexus") {
+          customer = "nexus-bank";
+          environment = parts.slice(2).join("-");
+        } else if (parts[0] === "quantum") {
+          customer = "quantum-pay";
+          environment = parts.slice(2).join("-");
+        } else if (parts[0] === "stellar") {
+          customer = "stellar-finance";
+          environment = parts.slice(2).join("-");
+        } else if (parts[0] === "crypto") {
+          customer = "crypto-vault";
+          environment = parts.slice(2).join("-");
+        }
+      }
+
+      // Find matching tenant from main config
+      const matchingTenant = defaultConfig.tenants.find(
+        (t) =>
+          (t.customer === customer ||
+            t.customer.includes(customer.split("-")[0])) &&
+          t.environment === environment
+      );
+
+      if (matchingTenant) {
+        // Create a single-tenant config for editing
+        const singleTenantConfig: TenantConfig = {
+          ...defaultConfig,
+          tenants: [matchingTenant],
+        };
+        setConfig(singleTenantConfig);
+      } else {
+        // Create a new tenant config based on the customer/environment
+        const newTenant = {
+          tenantId: `${customer}-${environment}`,
+          tenantName: `${
+            customer.charAt(0).toUpperCase() +
+            customer.slice(1).replace("-", " ")
+          } - ${environment.charAt(0).toUpperCase() + environment.slice(1)}`,
+          tenantImage: `/assets/tenants/${customer}/logo.png`,
+          customer: customer,
+          environment: environment,
+          theme: {
+            primaryColor: "#4b5563",
+            secondaryColor: "#6b7280",
+            fontFamily: "Inter, sans-serif",
+          },
+          features: {
+            enabledModules: ["reporting", "analytics"],
+            customSettings: {
+              debugMode: environment === "development",
+              logLevel:
+                environment === "development"
+                  ? "debug"
+                  : environment === "production"
+                  ? "error"
+                  : "info",
+            },
+          },
+        };
+
+        const singleTenantConfig: TenantConfig = {
+          ...defaultConfig,
+          tenants: [newTenant],
+        };
+        setConfig(singleTenantConfig);
+      }
+    } catch (error) {
+      console.error("Error loading tenant file:", error);
+    }
+  };
+
+  const saveTenantFile = () => {
+    if (selectedTenantFile === "main-config") {
+      downloadConfig();
+    } else {
+      // For individual tenant files, download just the tenant config
+      if (config.tenants.length > 0) {
+        const tenantConfig = config.tenants[0];
+        const blob = new Blob([JSON.stringify(tenantConfig, null, 2)], {
+          type: "application/json",
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${selectedTenantFile}-config.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+    }
+  };
 
   const updateConfig = (path: string, value: any) => {
     setConfig((prev) => {
@@ -388,6 +526,8 @@ const App: React.FC = () => {
           tenantId: "new-tenant-" + Date.now(),
           tenantName: "New Tenant",
           tenantImage: "/assets/tenants/default/image.png",
+          customer: "new-customer",
+          environment: "development",
           theme: {
             primaryColor: "#4b5563",
             secondaryColor: "#6b7280",
@@ -463,6 +603,34 @@ const App: React.FC = () => {
                 Configure your multi-tenant platform settings with detailed
                 controls
               </p>
+            </div>
+
+            {/* Tenant File Selector */}
+            <div className="form-section">
+              <h3>📁 Configuration File Selection</h3>
+              <div className="form-group">
+                <label className="field-label">
+                  Select Configuration File *
+                </label>
+                <p className="field-description">
+                  Choose which tenant configuration file to load and modify
+                </p>
+                <select
+                  value={selectedTenantFile}
+                  onChange={(e) => {
+                    setSelectedTenantFile(e.target.value);
+                    loadTenantFile(e.target.value);
+                  }}
+                  className="text-input"
+                  required
+                >
+                  {tenantFiles.map((file) => (
+                    <option key={file.value} value={file.value}>
+                      {file.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             {/* Features Section */}
@@ -776,6 +944,49 @@ const App: React.FC = () => {
                     </div>
 
                     <div className="form-group">
+                      <label className="field-label">Customer *</label>
+                      <p className="field-description">
+                        Customer organization name
+                      </p>
+                      <input
+                        type="text"
+                        value={tenant.customer}
+                        onChange={(e) =>
+                          updateConfig(
+                            `tenants.${index}.customer`,
+                            e.target.value
+                          )
+                        }
+                        placeholder="Acme Corp"
+                        className="text-input"
+                        required
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label className="field-label">Environment *</label>
+                      <p className="field-description">
+                        Deployment environment (dev, staging, prod)
+                      </p>
+                      <select
+                        value={tenant.environment}
+                        onChange={(e) =>
+                          updateConfig(
+                            `tenants.${index}.environment`,
+                            e.target.value
+                          )
+                        }
+                        className="text-input"
+                        required
+                      >
+                        <option value="">Select environment</option>
+                        <option value="development">Development</option>
+                        <option value="staging">Staging</option>
+                        <option value="production">Production</option>
+                      </select>
+                    </div>
+
+                    <div className="form-group">
                       <label className="field-label">Tenant Image</label>
                       <p className="field-description">
                         Path to tenant logo/image
@@ -877,12 +1088,24 @@ const App: React.FC = () => {
             </div>
 
             <div className="form-actions">
-              <button onClick={copyToClipboard} className="secondary-button">
-                📋 Copy JSON
-              </button>
-              <button onClick={downloadConfig} className="primary-button">
-                💾 Download Config
-              </button>
+              <div className="current-file-indicator">
+                <span className="file-icon">📄</span>
+                <span className="file-name">
+                  Editing:{" "}
+                  {
+                    tenantFiles.find((f) => f.value === selectedTenantFile)
+                      ?.label
+                  }
+                </span>
+              </div>
+              <div className="button-group">
+                <button onClick={copyToClipboard} className="secondary-button">
+                  📋 Copy JSON
+                </button>
+                <button onClick={saveTenantFile} className="primary-button">
+                  💾 Save Config
+                </button>
+              </div>
             </div>
           </div>
         ) : (

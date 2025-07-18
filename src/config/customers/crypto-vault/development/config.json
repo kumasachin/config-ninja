@@ -1,0 +1,29 @@
+{
+  "tenantId": "crypto-vault-dev",
+  "tenantName": "Crypto Vault - Development",
+  "tenantImage": "/assets/tenants/crypto-vault/logo.png",
+  "customer": "crypto-vault",
+  "environment": "development",
+  "api": {
+    "baseUrl": "https://dev-api.cryptovault.io/v1",
+    "authUrl": "https://dev-auth.cryptovault.io/oauth2/token",
+    "timeout": 40000,
+    "retryAttempts": 3
+  },
+  "theme": {
+    "primaryColor": "#7c3aed",
+    "secondaryColor": "#8b5cf6",
+    "fontFamily": "system-ui, sans-serif"
+  },
+  "features": {
+    "enabledModules": ["reporting", "analytics", "audit-log"],
+    "customSettings": {
+      "debugMode": true,
+      "logLevel": "debug",
+      "enableTestFeatures": true,
+      "walletSupport": ["bitcoin", "ethereum", "polygon"],
+      "testMode": true,
+      "securityLevel": "development"
+    }
+  }
+}

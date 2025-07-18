@@ -584,7 +584,34 @@ body {
   background: #f9fafb;
   display: flex;
   gap: 1rem;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.current-file-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: rgba(156, 163, 175, 0.1);
+  border: 1px solid rgba(156, 163, 175, 0.3);
+  border-radius: 0.5rem;
+  color: #4b5563;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.file-icon {
+  font-size: 1rem;
+}
+
+.file-name {
+  white-space: nowrap;
+}
+
+.form-actions .button-group {
+  display: flex;
+  gap: 1rem;
 }
 
 .primary-button {

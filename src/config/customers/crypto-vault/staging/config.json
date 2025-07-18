@@ -1,0 +1,31 @@
+{
+  "tenantId": "crypto-vault-staging",
+  "tenantName": "Crypto Vault - Staging",
+  "tenantImage": "/assets/tenants/crypto-vault/logo.png",
+  "customer": "crypto-vault",
+  "environment": "staging",
+  "api": {
+    "baseUrl": "https://staging-api.cryptovault.io/v1",
+    "authUrl": "https://staging-auth.cryptovault.io/oauth2/token",
+    "timeout": 35000,
+    "retryAttempts": 4
+  },
+  "theme": {
+    "primaryColor": "#f59e0b",
+    "secondaryColor": "#fbbf24",
+    "fontFamily": "system-ui, sans-serif"
+  },
+  "features": {
+    "enabledModules": ["reporting", "analytics", "audit-log", "notifications"],
+    "customSettings": {
+      "debugMode": false,
+      "logLevel": "info",
+      "enableTestFeatures": false,
+      "walletSupport": ["bitcoin", "ethereum", "polygon", "solana"],
+      "testMode": false,
+      "securityLevel": "enhanced",
+      "performanceTesting": true,
+      "stressTest": true
+    }
+  }
+}

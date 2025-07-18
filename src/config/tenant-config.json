@@ -1,38 +1,258 @@
 {
   "features": {
-    "enabledModules": ["reporting", "analytics", "audit-log"],
-    "betaFeatures": ["ai-suggestions", "tenant-isolation"],
-    "roles": ["admin", "editor", "viewer"],
+    "enabledModules": ["reporting", "analytics", "audit-log", "notifications"],
+    "betaFeatures": ["ai-suggestions", "tenant-isolation", "advanced-search"],
+    "roles": ["admin", "editor", "viewer", "manager"],
     "enableAdvancedReporting": true,
     "useAIInsights": true
   },
   "api": {
     "baseUrl": "https://api.bass.io/v1",
-    "authUrl": "https://auth.bass.io/oauth2/token"
+    "authUrl": "https://auth.bass.io/oauth2/token",
+    "timeout": 30000,
+    "retryAttempts": 3
   },
   "auth": {
-    "clientId": "bass-default-client-id",
-    "scopes": ["read:data", "write:data"]
+    "clientId": "bass-platform-client-2025",
+    "scopes": ["read:data", "write:data", "admin:config"],
+    "tokenLifetime": 3600
   },
   "branding": {
     "favicon": "/assets/default/favicon.ico",
-    "title": "BASS Platform"
+    "title": "BASS Multi-Tenant Platform",
+    "logo": "/assets/default/logo.png",
+    "theme": {
+      "primaryColor": "#4b5563",
+      "secondaryColor": "#6b7280"
+    }
   },
   "tenants": [
     {
-      "tenantId": "acme-corp",
-      "tenantName": "Acme Corporation",
-      "tenantImage": "/assets/tenants/acme/image.png",
+      "tenantId": "acme-corp-dev",
+      "tenantName": "Acme Corporation - Development",
+      "tenantImage": "/assets/tenants/acme/logo.png",
+      "customer": "acme-corp",
+      "environment": "development",
       "theme": {
-        "primaryColor": "#0033cc"
+        "primaryColor": "#10b981",
+        "secondaryColor": "#34d399",
+        "fontFamily": "Inter, sans-serif"
+      },
+      "features": {
+        "enabledModules": ["reporting", "analytics"],
+        "customSettings": {
+          "debugMode": true,
+          "logLevel": "debug",
+          "enableTestFeatures": true
+        }
       }
     },
     {
-      "tenantId": "globex-inc",
-      "tenantName": "Globex Inc.",
-      "tenantImage": "/assets/tenants/globex/image.png",
+      "tenantId": "acme-corp-staging",
+      "tenantName": "Acme Corporation - Staging",
+      "tenantImage": "/assets/tenants/acme/logo.png",
+      "customer": "acme-corp",
+      "environment": "staging",
       "theme": {
-        "primaryColor": "#cc0000"
+        "primaryColor": "#f59e0b",
+        "secondaryColor": "#fbbf24",
+        "fontFamily": "Inter, sans-serif"
+      },
+      "features": {
+        "enabledModules": ["reporting", "analytics", "audit-log"],
+        "customSettings": {
+          "debugMode": false,
+          "logLevel": "info",
+          "enableTestFeatures": false,
+          "performanceTesting": true
+        }
+      }
+    },
+    {
+      "tenantId": "acme-corp-prod",
+      "tenantName": "Acme Corporation - Production",
+      "tenantImage": "/assets/tenants/acme/logo.png",
+      "customer": "acme-corp",
+      "environment": "production",
+      "theme": {
+        "primaryColor": "#0033cc",
+        "secondaryColor": "#3b82f6",
+        "fontFamily": "Inter, sans-serif"
+      },
+      "features": {
+        "enabledModules": [
+          "reporting",
+          "analytics",
+          "audit-log",
+          "notifications"
+        ],
+        "customSettings": {
+          "debugMode": false,
+          "logLevel": "error",
+          "enableTestFeatures": false,
+          "highAvailability": true,
+          "backupFrequency": "daily"
+        }
+      }
+    },
+    {
+      "tenantId": "globex-inc-dev",
+      "tenantName": "Globex Inc. - Development",
+      "tenantImage": "/assets/tenants/globex/logo.png",
+      "customer": "globex-inc",
+      "environment": "development",
+      "theme": {
+        "primaryColor": "#8b5cf6",
+        "secondaryColor": "#a78bfa",
+        "fontFamily": "Roboto, sans-serif"
+      },
+      "features": {
+        "enabledModules": ["reporting"],
+        "customSettings": {
+          "debugMode": true,
+          "logLevel": "debug",
+          "enableTestFeatures": true,
+          "experimentalFeatures": ["ai-suggestions"]
+        }
+      }
+    },
+    {
+      "tenantId": "globex-inc-prod",
+      "tenantName": "Globex Inc. - Production",
+      "tenantImage": "/assets/tenants/globex/logo.png",
+      "customer": "globex-inc",
+      "environment": "production",
+      "theme": {
+        "primaryColor": "#dc2626",
+        "secondaryColor": "#ef4444",
+        "fontFamily": "Roboto, sans-serif"
+      },
+      "features": {
+        "enabledModules": ["reporting", "analytics", "user-management"],
+        "customSettings": {
+          "debugMode": false,
+          "logLevel": "warn",
+          "enableTestFeatures": false,
+          "securityLevel": "high",
+          "auditLogging": true
+        }
+      }
+    },
+    {
+      "tenantId": "techstart-dev",
+      "tenantName": "TechStart Solutions - Development",
+      "tenantImage": "/assets/tenants/techstart/logo.png",
+      "customer": "techstart-solutions",
+      "environment": "development",
+      "theme": {
+        "primaryColor": "#06b6d4",
+        "secondaryColor": "#22d3ee",
+        "fontFamily": "Poppins, sans-serif"
+      },
+      "features": {
+        "enabledModules": ["analytics"],
+        "customSettings": {
+          "debugMode": true,
+          "logLevel": "debug",
+          "enableTestFeatures": true,
+          "apiRateLimit": 1000
+        }
+      }
+    },
+    {
+      "tenantId": "techstart-staging",
+      "tenantName": "TechStart Solutions - Staging",
+      "tenantImage": "/assets/tenants/techstart/logo.png",
+      "customer": "techstart-solutions",
+      "environment": "staging",
+      "theme": {
+        "primaryColor": "#0891b2",
+        "secondaryColor": "#0ea5e9",
+        "fontFamily": "Poppins, sans-serif"
+      },
+      "features": {
+        "enabledModules": ["analytics", "reporting"],
+        "customSettings": {
+          "debugMode": false,
+          "logLevel": "info",
+          "enableTestFeatures": false,
+          "apiRateLimit": 5000,
+          "cacheEnabled": true
+        }
+      }
+    },
+    {
+      "tenantId": "techstart-prod",
+      "tenantName": "TechStart Solutions - Production",
+      "tenantImage": "/assets/tenants/techstart/logo.png",
+      "customer": "techstart-solutions",
+      "environment": "production",
+      "theme": {
+        "primaryColor": "#075985",
+        "secondaryColor": "#0284c7",
+        "fontFamily": "Poppins, sans-serif"
+      },
+      "features": {
+        "enabledModules": ["analytics", "reporting", "notifications"],
+        "customSettings": {
+          "debugMode": false,
+          "logLevel": "error",
+          "enableTestFeatures": false,
+          "apiRateLimit": 10000,
+          "cacheEnabled": true,
+          "monitoringEnabled": true
+        }
+      }
+    },
+    {
+      "tenantId": "enterprise-corp-dev",
+      "tenantName": "Enterprise Corp - Development",
+      "tenantImage": "/assets/tenants/enterprise/logo.png",
+      "customer": "enterprise-corp",
+      "environment": "development",
+      "theme": {
+        "primaryColor": "#7c3aed",
+        "secondaryColor": "#8b5cf6",
+        "fontFamily": "system-ui, sans-serif"
+      },
+      "features": {
+        "enabledModules": ["reporting", "analytics", "audit-log"],
+        "customSettings": {
+          "debugMode": true,
+          "logLevel": "debug",
+          "enableTestFeatures": true,
+          "complianceMode": "development"
+        }
+      }
+    },
+    {
+      "tenantId": "enterprise-corp-prod",
+      "tenantName": "Enterprise Corp - Production",
+      "tenantImage": "/assets/tenants/enterprise/logo.png",
+      "customer": "enterprise-corp",
+      "environment": "production",
+      "theme": {
+        "primaryColor": "#1f2937",
+        "secondaryColor": "#374151",
+        "fontFamily": "system-ui, sans-serif"
+      },
+      "features": {
+        "enabledModules": [
+          "reporting",
+          "analytics",
+          "audit-log",
+          "notifications",
+          "user-management"
+        ],
+        "customSettings": {
+          "debugMode": false,
+          "logLevel": "error",
+          "enableTestFeatures": false,
+          "complianceMode": "strict",
+          "encryptionLevel": "enterprise",
+          "auditRetention": "7years",
+          "ssoRequired": true
+        }
       }
     }
   ]

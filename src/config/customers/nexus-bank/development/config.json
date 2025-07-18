@@ -1,0 +1,28 @@
+{
+  "tenantId": "nexus-bank-dev",
+  "tenantName": "Nexus Bank - Development",
+  "tenantImage": "/assets/tenants/nexus-bank/logo.png",
+  "customer": "nexus-bank",
+  "environment": "development",
+  "api": {
+    "baseUrl": "https://dev-api.nexusbank.io/v1",
+    "authUrl": "https://dev-auth.nexusbank.io/oauth2/token",
+    "timeout": 30000,
+    "retryAttempts": 3
+  },
+  "theme": {
+    "primaryColor": "#1e40af",
+    "secondaryColor": "#3b82f6",
+    "fontFamily": "Inter, sans-serif"
+  },
+  "features": {
+    "enabledModules": ["reporting", "analytics"],
+    "customSettings": {
+      "debugMode": true,
+      "logLevel": "debug",
+      "enableTestFeatures": true,
+      "mockPayments": true,
+      "kycValidation": "minimal"
+    }
+  }
+}

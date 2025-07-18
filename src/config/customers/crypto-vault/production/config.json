@@ -1,0 +1,34 @@
+{
+  "tenantId": "crypto-vault-prod",
+  "tenantName": "Crypto Vault - Production",
+  "tenantImage": "/assets/tenants/crypto-vault/logo.png",
+  "customer": "crypto-vault",
+  "environment": "production",
+  "api": {
+    "baseUrl": "https://api.cryptovault.io/v1",
+    "authUrl": "https://auth.cryptovault.io/oauth2/token",
+    "timeout": 30000,
+    "retryAttempts": 5
+  },
+  "theme": {
+    "primaryColor": "#1f2937",
+    "secondaryColor": "#374151",
+    "fontFamily": "system-ui, sans-serif"
+  },
+  "features": {
+    "enabledModules": ["reporting", "analytics", "audit-log", "notifications", "user-management"],
+    "customSettings": {
+      "debugMode": false,
+      "logLevel": "error",
+      "enableTestFeatures": false,
+      "walletSupport": ["bitcoin", "ethereum", "polygon", "solana", "cardano"],
+      "testMode": false,
+      "securityLevel": "maximum",
+      "multiSigRequired": true,
+      "hardwareSecurityModule": true,
+      "auditRetention": "10years",
+      "regulatoryCompliance": "mifid-ii",
+      "insuranceCoverage": true
+    }
+  }
+}

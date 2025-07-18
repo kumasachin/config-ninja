@@ -1,0 +1,29 @@
+{
+  "tenantId": "quantum-pay-dev",
+  "tenantName": "Quantum Pay - Development",
+  "tenantImage": "/assets/tenants/quantum-pay/logo.png",
+  "customer": "quantum-pay",
+  "environment": "development",
+  "api": {
+    "baseUrl": "https://dev-api.quantumpay.io/v1",
+    "authUrl": "https://dev-auth.quantumpay.io/oauth2/token",
+    "timeout": 35000,
+    "retryAttempts": 3
+  },
+  "theme": {
+    "primaryColor": "#7c3aed",
+    "secondaryColor": "#8b5cf6",
+    "fontFamily": "Roboto, sans-serif"
+  },
+  "features": {
+    "enabledModules": ["analytics"],
+    "customSettings": {
+      "debugMode": true,
+      "logLevel": "debug",
+      "enableTestFeatures": true,
+      "cryptoSupport": true,
+      "testTokens": true,
+      "blockchainNetwork": "testnet"
+    }
+  }
+}

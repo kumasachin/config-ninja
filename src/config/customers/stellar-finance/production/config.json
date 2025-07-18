@@ -1,0 +1,32 @@
+{
+  "tenantId": "stellar-finance-prod",
+  "tenantName": "Stellar Finance - Production",
+  "tenantImage": "/assets/tenants/stellar-finance/logo.png",
+  "customer": "stellar-finance",
+  "environment": "production",
+  "api": {
+    "baseUrl": "https://api.stellarfinance.io/v1",
+    "authUrl": "https://auth.stellarfinance.io/oauth2/token",
+    "timeout": 20000,
+    "retryAttempts": 5
+  },
+  "theme": {
+    "primaryColor": "#075985",
+    "secondaryColor": "#0284c7",
+    "fontFamily": "Poppins, sans-serif"
+  },
+  "features": {
+    "enabledModules": ["reporting", "analytics", "notifications", "audit-log"],
+    "customSettings": {
+      "debugMode": false,
+      "logLevel": "error",
+      "enableTestFeatures": false,
+      "tradingSimulation": false,
+      "portfolioTracking": true,
+      "riskAssessment": "comprehensive",
+      "realTimeMarketData": true,
+      "algorithmicTrading": true,
+      "regulatoryReporting": true
+    }
+  }
+}

@@ -158,7 +158,7 @@
       "description": "List of configured tenants",
       "items": {
         "type": "object",
-        "required": ["tenantId", "tenantName"],
+        "required": ["tenantId", "tenantName", "customer", "environment"],
         "properties": {
           "tenantId": {
             "type": "string",
@@ -172,6 +172,17 @@
             "description": "Human-readable tenant name",
             "minLength": 1,
             "maxLength": 100
+          },
+          "customer": {
+            "type": "string",
+            "description": "Customer organization name",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "environment": {
+            "type": "string",
+            "description": "Deployment environment",
+            "enum": ["development", "staging", "production"]
           },
           "tenantImage": {
             "type": "string",
@@ -206,7 +217,13 @@
                 "type": "array",
                 "items": {
                   "type": "string",
-                  "enum": ["reporting", "analytics", "audit-log", "notifications", "user-management"]
+                  "enum": [
+                    "reporting",
+                    "analytics",
+                    "audit-log",
+                    "notifications",
+                    "user-management"
+                  ]
                 },
                 "uniqueItems": true
               },

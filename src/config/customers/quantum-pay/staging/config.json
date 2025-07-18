@@ -1,0 +1,31 @@
+{
+  "tenantId": "quantum-pay-staging",
+  "tenantName": "Quantum Pay - Staging",
+  "tenantImage": "/assets/tenants/quantum-pay/logo.png",
+  "customer": "quantum-pay",
+  "environment": "staging",
+  "api": {
+    "baseUrl": "https://staging-api.quantumpay.io/v1",
+    "authUrl": "https://staging-auth.quantumpay.io/oauth2/token",
+    "timeout": 30000,
+    "retryAttempts": 4
+  },
+  "theme": {
+    "primaryColor": "#0891b2",
+    "secondaryColor": "#0ea5e9",
+    "fontFamily": "Roboto, sans-serif"
+  },
+  "features": {
+    "enabledModules": ["analytics", "reporting"],
+    "customSettings": {
+      "debugMode": false,
+      "logLevel": "info",
+      "enableTestFeatures": false,
+      "cryptoSupport": true,
+      "testTokens": false,
+      "blockchainNetwork": "testnet",
+      "performanceTesting": true,
+      "loadTesting": true
+    }
+  }
+}

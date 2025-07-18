@@ -1,0 +1,29 @@
+{
+  "tenantId": "nexus-bank-staging",
+  "tenantName": "Nexus Bank - Staging",
+  "tenantImage": "/assets/tenants/nexus-bank/logo.png",
+  "customer": "nexus-bank",
+  "environment": "staging",
+  "api": {
+    "baseUrl": "https://staging-api.nexusbank.io/v1",
+    "authUrl": "https://staging-auth.nexusbank.io/oauth2/token",
+    "timeout": 25000,
+    "retryAttempts": 3
+  },
+  "theme": {
+    "primaryColor": "#f59e0b",
+    "secondaryColor": "#fbbf24",
+    "fontFamily": "Inter, sans-serif"
+  },
+  "features": {
+    "enabledModules": ["reporting", "analytics", "audit-log"],
+    "customSettings": {
+      "debugMode": false,
+      "logLevel": "info",
+      "enableTestFeatures": false,
+      "mockPayments": false,
+      "kycValidation": "standard",
+      "performanceTesting": true
+    }
+  }
+}
