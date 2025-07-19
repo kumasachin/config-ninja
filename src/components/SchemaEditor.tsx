@@ -536,7 +536,8 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({ onClose, onSave }) => {
       }
     };
 
-    const canAddChildren = field.type === "object" && level < 2;
+    const canAddChildren =
+      (field.type === "object" || field.type === "array") && level < 2;
     const bgColor =
       level === 0 ? "white" : level === 1 ? "grey.50" : "grey.100";
     const elevation = level === 0 ? 2 : 1;
@@ -578,8 +579,13 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({ onClose, onSave }) => {
                 updateFieldHandler({
                   ...field,
                   type: newType,
-                  // Clear children if type is not object
-                  children: newType === "object" ? field.children : undefined,
+                  // Clear children if type is not object or array
+                  children:
+                    newType === "object" || newType === "array"
+                      ? field.children
+                      : undefined,
+                  // Clear options if switching to object (but keep for arrays in case they want simple values)
+                  options: newType === "object" ? undefined : field.options,
                 });
               }}
             >
@@ -629,23 +635,40 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({ onClose, onSave }) => {
         />
 
         {field.type === "array" && (
-          <TextField
-            label="Options (comma-separated)"
-            fullWidth
-            size="small"
-            value={field.options?.join(", ") || ""}
-            onChange={(e) =>
-              updateFieldHandler({
-                ...field,
-                options: e.target.value
-                  .split(",")
-                  .map((s) => s.trim())
-                  .filter(Boolean),
-              })
-            }
-            placeholder="option1, option2, option3"
-            sx={{ mb: 2 }}
-          />
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="subtitle2" sx={{ mb: 1 }}>
+              Array Configuration
+            </Typography>
+
+            {(!field.children || field.children.length === 0) && (
+              <TextField
+                label="Simple Array Options (comma-separated)"
+                fullWidth
+                size="small"
+                value={field.options?.join(", ") || ""}
+                onChange={(e) =>
+                  updateFieldHandler({
+                    ...field,
+                    options: e.target.value
+                      .split(",")
+                      .map((s) => s.trim())
+                      .filter(Boolean),
+                    // Clear children when using simple options
+                    children: undefined,
+                  })
+                }
+                placeholder="option1, option2, option3 (for string arrays)"
+                helperText="Leave empty if you want to define object array structure below"
+              />
+            )}
+
+            {field.children && field.children.length > 0 && (
+              <Alert severity="info" sx={{ mt: 1 }}>
+                This array contains object items. Define the object structure
+                using nested fields below.
+              </Alert>
+            )}
+          </Box>
         )}
 
         {canAddChildren && (
@@ -657,7 +680,9 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({ onClose, onSave }) => {
               onClick={addChildFieldHandler}
               sx={{ mr: 2 }}
             >
-              Add Nested Field
+              {field.type === "array"
+                ? "Add Array Item Field"
+                : "Add Nested Field"}
             </Button>
             <Typography variant="caption" color="text.secondary">
               Level {level + 1} -{" "}
@@ -666,6 +691,8 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({ onClose, onSave }) => {
                     2 - level === 1 ? "" : "s"
                   }`
                 : "Maximum nesting reached"}
+              {field.type === "array" &&
+                " (defines object structure for array items)"}
             </Typography>
           </Box>
         )}
@@ -676,7 +703,11 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({ onClose, onSave }) => {
               variant="subtitle2"
               sx={{ mb: 2, display: "flex", alignItems: "center", gap: 1 }}
             >
-              📁 Nested Fields ({field.children.length}) - Level {level + 1}
+              {field.type === "array" ? "�" : "�📁"}
+              {field.type === "array"
+                ? `Array Item Fields (${field.children.length})`
+                : `Nested Fields (${field.children.length})`}
+              - Level {level + 1}
             </Typography>
             <Stack spacing={2} sx={{ pl: level < 2 ? 2 : 0 }}>
               {field.children.map((childField, childFieldIndex) =>
@@ -727,8 +758,14 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({ onClose, onSave }) => {
 
       if (Array.isArray(value)) {
         fieldType = "array";
-        if (value.length > 0 && typeof value[0] === "string") {
-          options = [...new Set(value)];
+        if (value.length > 0) {
+          if (typeof value[0] === "string") {
+            // Array of strings - use as enum options
+            options = [...new Set(value)];
+          } else if (typeof value[0] === "object" && value[0] !== null) {
+            // Array of objects - define object structure
+            children = generateFieldsFromObject(value[0]);
+          }
         }
       } else if (typeof value === "object" && value !== null) {
         fieldType = "object";
