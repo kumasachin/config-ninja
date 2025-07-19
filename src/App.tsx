@@ -6,6 +6,7 @@ import ConfigComparison from "./components/ConfigComparison";
 import SchemaEditor from "./components/SchemaEditor";
 import AIAssistant from "./components/AIAssistant";
 import HelpPages from "./components/HelpPages";
+import GitCommitDialog from "./components/GitCommitDialog";
 
 interface TenantConfig {
   features: {
@@ -384,6 +385,8 @@ const App: React.FC = () => {
   const [showDirectoryBrowser, setShowDirectoryBrowser] =
     useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const [showGitDialog, setShowGitDialog] = useState<boolean>(false);
+  const [savedFiles, setSavedFiles] = useState<string[]>([]);
 
   // Load configuration files when directory changes
   useEffect(() => {
@@ -498,11 +501,15 @@ const App: React.FC = () => {
   };
 
   const saveTenantFile = () => {
+    let fileName = "";
+
     if (selectedTenantFile === "main-config") {
+      fileName = "main-config.json";
       downloadConfig();
     } else {
       // For individual tenant files, download just the tenant config
       if (config.tenants.length > 0) {
+        fileName = `${selectedTenantFile}-config.json`;
         const tenantConfig = config.tenants[0];
         const blob = new Blob([JSON.stringify(tenantConfig, null, 2)], {
           type: "application/json",
@@ -510,13 +517,31 @@ const App: React.FC = () => {
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `${selectedTenantFile}-config.json`;
+        a.download = fileName;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
       }
     }
+
+    // After saving, offer Git commit/push option
+    if (fileName) {
+      setSavedFiles([fileName]);
+      setShowGitDialog(true);
+    }
+  };
+
+  const handleGitDialogClose = () => {
+    setShowGitDialog(false);
+    setSavedFiles([]);
+  };
+
+  const handleGitSuccess = (commitHash: string) => {
+    console.log("Git operation completed successfully:", commitHash);
+    setShowGitDialog(false);
+    setSavedFiles([]);
+    // Optionally show a success notification here
   };
 
   const updateConfig = (path: string, value: any) => {
@@ -603,6 +628,10 @@ const App: React.FC = () => {
 
       // Optionally reload configuration files to reflect schema changes
       await loadConfigurationFiles();
+
+      // Offer Git commit/push option for schema changes
+      setSavedFiles(["schema.json"]);
+      setShowGitDialog(true);
     } catch (error) {
       console.error("Error in schema save callback:", error);
     }
@@ -1344,6 +1373,25 @@ const App: React.FC = () => {
             "Progressive Web App capabilities",
           ],
         }}
+      />
+
+      {/* Floating Buy Button */}
+      <div className="floating-buy-button">
+        <a
+          href="mailto:kumasachin@gmail.com?subject=Interested in Config Ninja - Hire/Buy/Reuse&body=Hi, I'm interested in hiring you or purchasing/reusing the Config Ninja repository. Please let me know about pricing and availability."
+          className="buy-button"
+          title="Contact to hire, buy, or reuse this repository"
+        >
+          💼 Hire/Buy
+        </a>
+      </div>
+
+      {/* Git Commit Dialog */}
+      <GitCommitDialog
+        open={showGitDialog}
+        onClose={handleGitDialogClose}
+        onSuccess={handleGitSuccess}
+        savedFiles={savedFiles}
       />
     </div>
   );
