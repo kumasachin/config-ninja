@@ -1345,6 +1345,17 @@ const App: React.FC = () => {
           ],
         }}
       />
+
+      {/* Floating Buy Button */}
+      <div className="floating-buy-button">
+        <a
+          href="mailto:kumasachin@gmail.com?subject=Interested in Config Ninja - Hire/Buy/Reuse&body=Hi, I'm interested in hiring you or purchasing/reusing the Config Ninja repository. Please let me know about pricing and availability."
+          className="buy-button"
+          title="Contact to hire, buy, or reuse this repository"
+        >
+          💼 Hire/Buy
+        </a>
+      </div>
     </div>
   );
 };
