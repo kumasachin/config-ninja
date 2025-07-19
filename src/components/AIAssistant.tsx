@@ -311,7 +311,11 @@ Just type whatever you're wondering about.`;
             color="primary"
             variant="outlined"
           />
-          <IconButton onClick={() => setOpen(false)} size="small">
+          <IconButton
+            onClick={() => setOpen(false)}
+            size="small"
+            aria-label="Close dialog"
+          >
             <CloseIcon />
           </IconButton>
         </DialogTitle>
@@ -418,6 +422,7 @@ Just type whatever you're wondering about.`;
               onClick={sendMessage}
               disabled={loading || !input.trim()}
               sx={{ minWidth: "auto", px: 2 }}
+              aria-label="Send message"
             >
               <SendIcon />
             </Button>
