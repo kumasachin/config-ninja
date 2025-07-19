@@ -20,7 +20,6 @@ import {
   CircularProgress,
   Paper,
   IconButton,
-  Chip,
   Stack,
 } from "@mui/material";
 import {
@@ -39,6 +38,7 @@ interface SchemaField {
   description?: string;
   options?: string[]; // for select fields
   children?: SchemaField[]; // for nested objects
+  level?: number; // nesting level (0-2, max 3 levels)
 }
 
 interface Schema {
@@ -114,30 +114,32 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({ onClose, onSave }) => {
   const convertJsonSchemaToInternalFormat = (jsonSchema: any): Schema => {
     const fields: SchemaField[] = [];
 
-    if (jsonSchema.properties) {
-      for (const [key, value] of Object.entries(jsonSchema.properties)) {
+    const convertProperties = (
+      properties: any,
+      required: string[] = [],
+      level: number = 0
+    ): SchemaField[] => {
+      const result: SchemaField[] = [];
+
+      if (!properties) return result;
+
+      for (const [key, value] of Object.entries(properties)) {
         const prop = value as any;
         const field: SchemaField = {
           name: key,
           type: mapJsonSchemaType(prop),
-          required: jsonSchema.required?.includes(key) || false,
+          required: required?.includes(key) || false,
           description: prop.description || "",
           options: extractOptionsFromJsonSchema(prop),
+          level,
         };
 
         // Handle nested objects
-        if (prop.type === "object" && prop.properties) {
-          field.children = Object.entries(prop.properties).map(
-            ([childKey, childValue]) => {
-              const childProp = childValue as any;
-              return {
-                name: childKey,
-                type: mapJsonSchemaType(childProp),
-                required: prop.required?.includes(childKey) || false,
-                description: childProp.description || "",
-                options: extractOptionsFromJsonSchema(childProp),
-              };
-            }
+        if (prop.type === "object" && prop.properties && level < 2) {
+          field.children = convertProperties(
+            prop.properties,
+            prop.required,
+            level + 1
           );
         }
 
@@ -145,24 +147,26 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({ onClose, onSave }) => {
         if (
           prop.type === "array" &&
           prop.items?.type === "object" &&
-          prop.items.properties
+          prop.items.properties &&
+          level < 2
         ) {
-          field.children = Object.entries(prop.items.properties).map(
-            ([childKey, childValue]) => {
-              const childProp = childValue as any;
-              return {
-                name: childKey,
-                type: mapJsonSchemaType(childProp),
-                required: prop.items.required?.includes(childKey) || false,
-                description: childProp.description || "",
-                options: extractOptionsFromJsonSchema(childProp),
-              };
-            }
+          field.children = convertProperties(
+            prop.items.properties,
+            prop.items.required,
+            level + 1
           );
         }
 
-        fields.push(field);
+        result.push(field);
       }
+
+      return result;
+    };
+
+    if (jsonSchema.properties) {
+      fields.push(
+        ...convertProperties(jsonSchema.properties, jsonSchema.required, 0)
+      );
     }
 
     return {
@@ -198,77 +202,67 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({ onClose, onSave }) => {
       additionalProperties: false,
     };
 
-    // Convert fields to JSON Schema properties
-    internalSchema.fields.forEach((field) => {
-      const property: any = {
-        type: field.type === "number" ? "integer" : field.type,
-        description: field.description || "",
-      };
+    const convertFields = (
+      fields: SchemaField[],
+      parentProperty: any,
+      parentRequired: string[]
+    ) => {
+      fields.forEach((field) => {
+        const property: any = {
+          type: field.type === "number" ? "integer" : field.type,
+          description: field.description || "",
+        };
 
-      // Handle required fields
-      if (field.required) {
-        jsonSchema.required.push(field.name);
-      }
+        // Handle required fields
+        if (field.required) {
+          parentRequired.push(field.name);
+        }
 
-      // Handle different field types
-      if (field.type === "array") {
-        if (field.options && field.options.length > 0) {
-          property.items = {
-            type: "string",
-            enum: field.options,
-          };
-          property.uniqueItems = true;
-        } else if (field.children && field.children.length > 0) {
-          // Array of objects
-          property.items = {
-            type: "object",
-            properties: {},
-            required: [],
-          };
-
-          field.children.forEach((child) => {
-            property.items.properties[child.name] = {
-              type: child.type === "number" ? "integer" : child.type,
-              description: child.description || "",
+        // Handle different field types
+        if (field.type === "array") {
+          if (field.options && field.options.length > 0) {
+            property.items = {
+              type: "string",
+              enum: field.options,
+            };
+            property.uniqueItems = true;
+          } else if (field.children && field.children.length > 0) {
+            // Array of objects
+            property.items = {
+              type: "object",
+              properties: {},
+              required: [],
             };
 
-            if (child.options && child.options.length > 0) {
-              property.items.properties[child.name].enum = child.options;
-            }
+            convertFields(
+              field.children,
+              property.items.properties,
+              property.items.required
+            );
+          }
+        } else if (
+          field.type === "object" &&
+          field.children &&
+          field.children.length > 0
+        ) {
+          property.properties = {};
+          property.required = [];
 
-            if (child.required) {
-              property.items.required.push(child.name);
-            }
-          });
+          convertFields(field.children, property.properties, property.required);
+        } else if (field.options && field.options.length > 0) {
+          property.enum = field.options;
         }
-      } else if (
-        field.type === "object" &&
-        field.children &&
-        field.children.length > 0
-      ) {
-        property.properties = {};
-        property.required = [];
 
-        field.children.forEach((child) => {
-          property.properties[child.name] = {
-            type: child.type === "number" ? "integer" : child.type,
-            description: child.description || "",
-          };
+        parentProperty[field.name] = property;
+      });
+    };
 
-          if (child.options && child.options.length > 0) {
-            property.properties[child.name].enum = child.options;
-          }
-
-          if (child.required) {
-            property.required.push(child.name);
-          }
-        });
-      } else if (field.options && field.options.length > 0) {
-        property.enum = field.options;
-      }
-
-      jsonSchema.properties[field.name] = property;
-    });
+    // Convert top-level fields to JSON Schema properties
+    convertFields(
+      internalSchema.fields,
+      jsonSchema.properties,
+      jsonSchema.required
+    );
 
     return jsonSchema;
   };
@@ -313,11 +307,180 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({ onClose, onSave }) => {
       type: "string",
       required: false,
       description: "",
+      level: 0,
     };
     setSchema((prev) => ({
       ...prev,
       fields: [...prev.fields, newField],
     }));
+  };
+
+  const addNestedField = (parentIndex: number, level: number) => {
+    const newField: SchemaField = {
+      name: `nested_field_${Date.now()}`,
+      type: "string",
+      required: false,
+      description: "",
+      level: level + 1,
+    };
+
+    setSchema((prev) => {
+      const updatedFields = [...prev.fields];
+      const parentField = { ...updatedFields[parentIndex] };
+
+      if (!parentField.children) {
+        parentField.children = [];
+      }
+
+      parentField.children = [...parentField.children, newField];
+      updatedFields[parentIndex] = parentField;
+
+      return {
+        ...prev,
+        fields: updatedFields,
+      };
+    });
+  };
+
+  const addDeepNestedField = (
+    parentIndex: number,
+    childIndex: number,
+    level: number
+  ) => {
+    const newField: SchemaField = {
+      name: `deep_nested_field_${Date.now()}`,
+      type: "string",
+      required: false,
+      description: "",
+      level: level + 1,
+    };
+
+    setSchema((prev) => {
+      const updatedFields = [...prev.fields];
+      const parentField = { ...updatedFields[parentIndex] };
+
+      if (!parentField.children) return prev;
+
+      const updatedChildren = [...parentField.children];
+      const childField = { ...updatedChildren[childIndex] };
+
+      if (!childField.children) {
+        childField.children = [];
+      }
+
+      childField.children = [...childField.children, newField];
+      updatedChildren[childIndex] = childField;
+      parentField.children = updatedChildren;
+      updatedFields[parentIndex] = parentField;
+
+      return {
+        ...prev,
+        fields: updatedFields,
+      };
+    });
+  };
+
+  const updateNestedField = (
+    parentIndex: number,
+    childIndex: number,
+    field: SchemaField
+  ) => {
+    setSchema((prev) => {
+      const updatedFields = [...prev.fields];
+      const parentField = { ...updatedFields[parentIndex] };
+
+      if (!parentField.children) return prev;
+
+      parentField.children = parentField.children.map((f, i) =>
+        i === childIndex ? field : f
+      );
+      updatedFields[parentIndex] = parentField;
+
+      return {
+        ...prev,
+        fields: updatedFields,
+      };
+    });
+  };
+
+  const updateDeepNestedField = (
+    parentIndex: number,
+    childIndex: number,
+    grandChildIndex: number,
+    field: SchemaField
+  ) => {
+    setSchema((prev) => {
+      const updatedFields = [...prev.fields];
+      const parentField = { ...updatedFields[parentIndex] };
+
+      if (!parentField.children) return prev;
+
+      const updatedChildren = [...parentField.children];
+      const childField = { ...updatedChildren[childIndex] };
+
+      if (!childField.children) return prev;
+
+      childField.children = childField.children.map((f, i) =>
+        i === grandChildIndex ? field : f
+      );
+      updatedChildren[childIndex] = childField;
+      parentField.children = updatedChildren;
+      updatedFields[parentIndex] = parentField;
+
+      return {
+        ...prev,
+        fields: updatedFields,
+      };
+    });
+  };
+
+  const removeNestedField = (parentIndex: number, childIndex: number) => {
+    setSchema((prev) => {
+      const updatedFields = [...prev.fields];
+      const parentField = { ...updatedFields[parentIndex] };
+
+      if (!parentField.children) return prev;
+
+      parentField.children = parentField.children.filter(
+        (_, i) => i !== childIndex
+      );
+      updatedFields[parentIndex] = parentField;
+
+      return {
+        ...prev,
+        fields: updatedFields,
+      };
+    });
+  };
+
+  const removeDeepNestedField = (
+    parentIndex: number,
+    childIndex: number,
+    grandChildIndex: number
+  ) => {
+    setSchema((prev) => {
+      const updatedFields = [...prev.fields];
+      const parentField = { ...updatedFields[parentIndex] };
+
+      if (!parentField.children) return prev;
+
+      const updatedChildren = [...parentField.children];
+      const childField = { ...updatedChildren[childIndex] };
+
+      if (!childField.children) return prev;
+
+      childField.children = childField.children.filter(
+        (_, i) => i !== grandChildIndex
+      );
+      updatedChildren[childIndex] = childField;
+      parentField.children = updatedChildren;
+      updatedFields[parentIndex] = parentField;
+
+      return {
+        ...prev,
+        fields: updatedFields,
+      };
+    });
   };
 
   const updateField = (index: number, field: SchemaField) => {
@@ -332,6 +495,204 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({ onClose, onSave }) => {
       ...prev,
       fields: prev.fields.filter((_, i) => i !== index),
     }));
+  };
+
+  const renderNestedField = (
+    field: SchemaField,
+    index: number,
+    parentIndex?: number,
+    childIndex?: number,
+    level: number = 0
+  ) => {
+    const isTopLevel = parentIndex === undefined;
+    const isSecondLevel = parentIndex !== undefined && childIndex === undefined;
+    const isThirdLevel = parentIndex !== undefined && childIndex !== undefined;
+
+    const updateFieldHandler = (updatedField: SchemaField) => {
+      if (isTopLevel) {
+        updateField(index, updatedField);
+      } else if (isSecondLevel) {
+        updateNestedField(parentIndex!, index, updatedField);
+      } else if (isThirdLevel) {
+        updateDeepNestedField(parentIndex!, childIndex!, index, updatedField);
+      }
+    };
+
+    const removeFieldHandler = () => {
+      if (isTopLevel) {
+        removeField(index);
+      } else if (isSecondLevel) {
+        removeNestedField(parentIndex!, index);
+      } else if (isThirdLevel) {
+        removeDeepNestedField(parentIndex!, childIndex!, index);
+      }
+    };
+
+    const addChildFieldHandler = () => {
+      if (isTopLevel) {
+        addNestedField(index, level);
+      } else if (isSecondLevel) {
+        addDeepNestedField(parentIndex!, index, level);
+      }
+    };
+
+    const canAddChildren = field.type === "object" && level < 2;
+    const bgColor =
+      level === 0 ? "white" : level === 1 ? "grey.50" : "grey.100";
+    const elevation = level === 0 ? 2 : 1;
+
+    return (
+      <Paper
+        key={`${parentIndex}-${childIndex}-${index}`}
+        elevation={elevation}
+        sx={{ p: 3, bgcolor: bgColor }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            gap: 2,
+            alignItems: "flex-start",
+            mb: 2,
+          }}
+        >
+          <TextField
+            label="Field Name"
+            size="small"
+            sx={{ flex: 1 }}
+            value={field.name}
+            onChange={(e) =>
+              updateFieldHandler({
+                ...field,
+                name: e.target.value,
+              })
+            }
+            placeholder="field_name"
+          />
+          <FormControl size="small" sx={{ minWidth: 120 }}>
+            <InputLabel>Type</InputLabel>
+            <Select
+              value={field.type}
+              label="Type"
+              onChange={(e) => {
+                const newType = e.target.value as SchemaField["type"];
+                updateFieldHandler({
+                  ...field,
+                  type: newType,
+                  // Clear children if type is not object
+                  children: newType === "object" ? field.children : undefined,
+                });
+              }}
+            >
+              <MenuItem value="string">String</MenuItem>
+              <MenuItem value="number">Number</MenuItem>
+              <MenuItem value="boolean">Boolean</MenuItem>
+              <MenuItem value="array">Array</MenuItem>
+              <MenuItem value="object">Object</MenuItem>
+            </Select>
+          </FormControl>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={field.required}
+                onChange={(e) =>
+                  updateFieldHandler({
+                    ...field,
+                    required: e.target.checked,
+                  })
+                }
+              />
+            }
+            label="Required"
+          />
+          <IconButton
+            color="error"
+            onClick={removeFieldHandler}
+            aria-label="Remove field"
+          >
+            <DeleteIcon />
+          </IconButton>
+        </Box>
+
+        <TextField
+          label="Description"
+          fullWidth
+          size="small"
+          value={field.description || ""}
+          onChange={(e) =>
+            updateFieldHandler({
+              ...field,
+              description: e.target.value,
+            })
+          }
+          placeholder="Describe this field"
+          sx={{ mb: 2 }}
+        />
+
+        {field.type === "array" && (
+          <TextField
+            label="Options (comma-separated)"
+            fullWidth
+            size="small"
+            value={field.options?.join(", ") || ""}
+            onChange={(e) =>
+              updateFieldHandler({
+                ...field,
+                options: e.target.value
+                  .split(",")
+                  .map((s) => s.trim())
+                  .filter(Boolean),
+              })
+            }
+            placeholder="option1, option2, option3"
+            sx={{ mb: 2 }}
+          />
+        )}
+
+        {canAddChildren && (
+          <Box sx={{ mt: 2, mb: 2 }}>
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={<AddIcon />}
+              onClick={addChildFieldHandler}
+              sx={{ mr: 2 }}
+            >
+              Add Nested Field
+            </Button>
+            <Typography variant="caption" color="text.secondary">
+              Level {level + 1} -{" "}
+              {level < 2
+                ? `Can nest ${2 - level} more level${
+                    2 - level === 1 ? "" : "s"
+                  }`
+                : "Maximum nesting reached"}
+            </Typography>
+          </Box>
+        )}
+
+        {field.children && field.children.length > 0 && (
+          <Box sx={{ mt: 2 }}>
+            <Typography
+              variant="subtitle2"
+              sx={{ mb: 2, display: "flex", alignItems: "center", gap: 1 }}
+            >
+              📁 Nested Fields ({field.children.length}) - Level {level + 1}
+            </Typography>
+            <Stack spacing={2} sx={{ pl: level < 2 ? 2 : 0 }}>
+              {field.children.map((childField, childFieldIndex) =>
+                renderNestedField(
+                  childField,
+                  childFieldIndex,
+                  isTopLevel ? index : parentIndex,
+                  isTopLevel ? undefined : index,
+                  level + 1
+                )
+              )}
+            </Stack>
+          </Box>
+        )}
+      </Paper>
+    );
   };
 
   const generateSchemaFromSample = () => {
@@ -551,162 +912,9 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({ onClose, onSave }) => {
                   </Box>
 
                   <Stack spacing={2}>
-                    {schema.fields.map((field, index) => (
-                      <Paper key={index} elevation={2} sx={{ p: 3 }}>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            gap: 2,
-                            alignItems: "flex-start",
-                            mb: 2,
-                          }}
-                        >
-                          <TextField
-                            label="Field Name"
-                            size="small"
-                            sx={{ flex: 1 }}
-                            value={field.name}
-                            onChange={(e) =>
-                              updateField(index, {
-                                ...field,
-                                name: e.target.value,
-                              })
-                            }
-                            placeholder="field_name"
-                          />
-                          <FormControl size="small" sx={{ minWidth: 120 }}>
-                            <InputLabel>Type</InputLabel>
-                            <Select
-                              value={field.type}
-                              label="Type"
-                              onChange={(e) =>
-                                updateField(index, {
-                                  ...field,
-                                  type: e.target.value as SchemaField["type"],
-                                })
-                              }
-                            >
-                              <MenuItem value="string">String</MenuItem>
-                              <MenuItem value="number">Number</MenuItem>
-                              <MenuItem value="boolean">Boolean</MenuItem>
-                              <MenuItem value="array">Array</MenuItem>
-                              <MenuItem value="object">Object</MenuItem>
-                            </Select>
-                          </FormControl>
-                          <FormControlLabel
-                            control={
-                              <Checkbox
-                                checked={field.required}
-                                onChange={(e) =>
-                                  updateField(index, {
-                                    ...field,
-                                    required: e.target.checked,
-                                  })
-                                }
-                              />
-                            }
-                            label="Required"
-                          />
-                          <IconButton
-                            color="error"
-                            onClick={() => removeField(index)}
-                            aria-label="Remove field"
-                          >
-                            <DeleteIcon />
-                          </IconButton>
-                        </Box>
-
-                        <TextField
-                          label="Description"
-                          fullWidth
-                          size="small"
-                          value={field.description || ""}
-                          onChange={(e) =>
-                            updateField(index, {
-                              ...field,
-                              description: e.target.value,
-                            })
-                          }
-                          placeholder="Describe this field"
-                          sx={{ mb: 2 }}
-                        />
-
-                        {field.type === "array" && (
-                          <TextField
-                            label="Options (comma-separated)"
-                            fullWidth
-                            size="small"
-                            value={field.options?.join(", ") || ""}
-                            onChange={(e) =>
-                              updateField(index, {
-                                ...field,
-                                options: e.target.value
-                                  .split(",")
-                                  .map((s) => s.trim())
-                                  .filter(Boolean),
-                              })
-                            }
-                            placeholder="option1, option2, option3"
-                            sx={{ mb: 2 }}
-                          />
-                        )}
-
-                        {field.children && field.children.length > 0 && (
-                          <Box sx={{ mt: 2 }}>
-                            <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                              Nested Fields ({field.children.length})
-                            </Typography>
-                            <Stack spacing={1}>
-                              {field.children.map((childField, childIndex) => (
-                                <Paper
-                                  key={childIndex}
-                                  elevation={1}
-                                  sx={{ p: 2, bgcolor: "grey.50" }}
-                                >
-                                  <Box
-                                    sx={{
-                                      display: "flex",
-                                      alignItems: "center",
-                                      gap: 1,
-                                      mb: 1,
-                                    }}
-                                  >
-                                    <Typography
-                                      variant="subtitle2"
-                                      fontWeight="bold"
-                                    >
-                                      {childField.name}
-                                    </Typography>
-                                    <Chip
-                                      label={childField.type}
-                                      size="small"
-                                    />
-                                    {childField.required && (
-                                      <Chip
-                                        label="Required"
-                                        size="small"
-                                        color="primary"
-                                      />
-                                    )}
-                                  </Box>
-                                  <Typography
-                                    variant="body2"
-                                    color="text.secondary"
-                                  >
-                                    {childField.description}
-                                  </Typography>
-                                  {childField.options && (
-                                    <Typography variant="body2" sx={{ mt: 1 }}>
-                                      Options: {childField.options.join(", ")}
-                                    </Typography>
-                                  )}
-                                </Paper>
-                              ))}
-                            </Stack>
-                          </Box>
-                        )}
-                      </Paper>
-                    ))}
+                    {schema.fields.map((field, index) =>
+                      renderNestedField(field, index, undefined, undefined, 0)
+                    )}
 
                     {schema.fields.length === 0 && (
                       <Box sx={{ textAlign: "center", py: 4 }}>
