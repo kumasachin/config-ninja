@@ -4,6 +4,8 @@ import { getConfigurationFiles, readConfigFile, ConfigFile } from './utils/fileS
 import DirectoryBrowser from './components/DirectoryBrowser'
 import ConfigComparison from "./components/ConfigComparison";
 import SchemaEditor from "./components/SchemaEditor";
+import AIAssistant from "./components/AIAssistant";
+import HelpPages from "./components/HelpPages";
 
 interface TenantConfig {
   features: {
@@ -374,6 +376,7 @@ const App: React.FC = () => {
   const [selectedTenantFile, setSelectedTenantFile] = useState<string>("");
   const [showConfigForm, setShowConfigForm] = useState<boolean>(false);
   const [showSchemaEditor, setShowSchemaEditor] = useState<boolean>(false);
+  const [showHelpPages, setShowHelpPages] = useState<boolean>(false);
   const [tenantFiles, setTenantFiles] = useState<ConfigFile[]>([]);
   const [currentDirectory, setCurrentDirectory] = useState<string>(
     "/Users/sachinkumar/Documents/config-ninja/src/config"
@@ -613,6 +616,16 @@ const App: React.FC = () => {
             <p className="subtitle">Advanced Tenant Configuration Manager</p>
           </div>
           <div className="header-right">
+            <button
+              className="help-button"
+              onClick={() => {
+                setShowHelpPages(true);
+              }}
+              title="Help & Documentation - Learn how to use Config Ninja"
+              style={{ marginRight: "1rem" }}
+            >
+              ❓ Help
+            </button>
             <button
               className="change-schema-link"
               onClick={() => {
@@ -1297,6 +1310,41 @@ const App: React.FC = () => {
           onSave={handleSchemaSave}
         />
       )}
+
+      {/* Help Pages Modal */}
+      {showHelpPages && (
+        <HelpPages
+          open={showHelpPages}
+          onClose={() => setShowHelpPages(false)}
+        />
+      )}
+
+      {/* AI Assistant - Available throughout the app */}
+      <AIAssistant
+        repositoryContext={{
+          name: "Config Ninja",
+          description:
+            "Advanced tenant configuration management with schema editor, nested object/array support, and comprehensive testing",
+          technologies: [
+            "React 18",
+            "TypeScript",
+            "Material-UI v7",
+            "Vite",
+            "Express.js",
+            "Cypress",
+            "PWA",
+          ],
+          features: [
+            "3-level nested object/array schema editing",
+            "JSON Schema generation from samples",
+            "Configuration file management",
+            "Multi-environment support",
+            "Configuration comparison tool",
+            "Automated testing with Cypress",
+            "Progressive Web App capabilities",
+          ],
+        }}
+      />
     </div>
   );
 };

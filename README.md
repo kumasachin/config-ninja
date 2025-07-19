@@ -1,16 +1,65 @@
 # Config Ninja
 
-A powerful configuration creator application built with React, TypeScript, Vite, and Node.js. Works as both a web application and Progressive Web App (PWA).
-
-## ✨ Features
+A powerful configurati## ✨ Features
 
 - 🎯 **Configuration Templates** - Pre-built templates for popular tools and frameworks
+- 📚 **Comprehensive Help System** - Interactive documentation with flow diagrams and troubleshooting
+- 🧠 **AI Assistant** - Integrated AI help for understanding and using the repository
+- 🔧 **Schema Editor** - Visual editor with 3-level nested object/array support
 - 📱 **PWA Support** - Works offline and can be installed as a native app
 - 🚀 **Modern Stack** - React 18 + TypeScript + Vite for optimal performance
 - 🎨 **Beautiful UI** - Clean, responsive design with smooth animations
 - 💾 **Export Options** - Download or copy configurations to clipboard
 - 🔧 **Live Editor** - Real-time configuration editing with syntax highlighting
 - 🌐 **Full-Stack** - Node.js backend for template management and validation
+- 🧪 **Comprehensive Testing** - Cypress E2E tests with 100% pass ratepplication built with React, TypeScript, Vite, and Node.js. Works as both a web application and Pro- `npm run dev` - Start frontend development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run server` - Start backend server
+- `npm run dev:server` - Start backend in development mode
+- `npm run lint` - Run ESLint
+- `npm run type-check` - Run TypeScript type checking
+
+## 📚 Help & Documentation
+
+Config Ninja includes comprehensive help and documentation to get you started quickly!
+
+### Built-in Help System
+- 📖 **Interactive Help Pages** - Comprehensive documentation with visual flow diagrams
+- 🚀 **Step-by-Step Guides** - Getting started tutorials with interactive walkthroughs
+- ⚡ **Feature Explanations** - Detailed feature descriptions and usage examples
+- 🔧 **Troubleshooting Guide** - Solutions to common issues and error scenarios
+
+### How to Access Help
+1. Click the **❓ Help** button in the top-right corner of the application
+2. Browse through 5 comprehensive tabs:
+   - **📖 Overview** - Application purpose and flow diagrams
+   - **🚀 Getting Started** - Interactive step-by-step workflow guide
+   - **⚡ Features** - Complete feature list with capabilities
+   - **📋 Usage Guide** - Detailed instructions for each feature
+   - **🔧 Troubleshooting** - Common issues and their solutions
+
+### Additional Resources
+- **CONFIG_NINJA_USER_GUIDE.md** - Complete user manual with best practices
+- **AI_ASSISTANT_SETUP.md** - AI assistant configuration guide
+- **Inline Help** - Contextual tooltips and descriptions throughout the UI
+
+## 🤖 AI Assistant
+
+Config Ninja includes an integrated AI assistant to help you understand and use the repository effectively!b App (PWA).
+
+## ✨ Features
+
+- 🎯 **Configuration Templates** - Pre-built templates for popular tools and frameworks
+- 🧠 **AI Assistant** - Integrated AI help for understanding and using the repository
+- � **Schema Editor** - Visual editor with 3-level nested object/array support
+- �📱 **PWA Support** - Works offline and can be installed as a native app
+- 🚀 **Modern Stack** - React 18 + TypeScript + Vite for optimal performance
+- 🎨 **Beautiful UI** - Clean, responsive design with smooth animations
+- 💾 **Export Options** - Download or copy configurations to clipboard
+- 🔧 **Live Editor** - Real-time configuration editing with syntax highlighting
+- 🌐 **Full-Stack** - Node.js backend for template management and validation
+- 🧪 **Comprehensive Testing** - Cypress E2E tests with 100% pass rate
 
 ## 🛠️ Tech Stack
 
@@ -152,7 +201,44 @@ config-ninja/
 - `npm run lint` - Run ESLint
 - `npm run type-check` - Run TypeScript type checking
 
-## 🤝 Contributing
+## � AI Assistant
+
+Config Ninja includes an integrated AI assistant to help you understand and use the repository effectively!
+
+### Features
+- 💬 **Interactive Q&A** - Ask questions about the codebase, features, and setup
+- 🎯 **Context-Aware** - Knows about React, TypeScript, schema editing, and testing
+- 🔄 **Multiple Providers** - Supports Ollama (local), HuggingFace (cloud), and static responses
+- 🚀 **Quick Help** - Pre-defined questions for common topics
+
+### Quick Start
+1. Click the 🤖 floating button in the bottom-right corner
+2. Ask questions like:
+   - "How do I get started?"
+   - "How does the schema editor work?"
+   - "How do I run tests?"
+   - "What features are available?"
+
+### Enhanced Experience (Optional)
+For the best AI experience, install [Ollama](https://ollama.ai/) locally:
+
+```bash
+# Install Ollama
+brew install ollama  # macOS
+# or visit https://ollama.ai/download for other platforms
+
+# Start Ollama
+ollama serve
+
+# Install a model
+ollama pull llama3.2
+```
+
+The assistant will automatically detect and use Ollama for better responses!
+
+📖 **Detailed Setup**: See [AI_ASSISTANT_SETUP.md](AI_ASSISTANT_SETUP.md) for complete installation guide.
+
+## �🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
