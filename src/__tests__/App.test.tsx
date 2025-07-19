@@ -1,51 +1,39 @@
 import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import App from '../App';
+import userEvent from "@testing-library/user-event";
 
-// Mock the AIAssistant component
+// Simple function-based mocks without forwardRef
 jest.mock('../components/AIAssistant', () => {
-  const MockAIAssistant = () => <div data-testid="ai-assistant">AI Assistant</div>;
-  return {
-    __esModule: true,
-    default: MockAIAssistant,
+  return function MockAIAssistant() {
+    return <div data-testid="ai-assistant">AI Assistant</div>;
   };
 });
 
-// Mock the DirectoryBrowser component
-jest.mock('../components/DirectoryBrowser', () => {
-  const MockDirectoryBrowser = () => <div data-testid="directory-browser">Directory Browser</div>;
-  return {
-    __esModule: true,
-    default: MockDirectoryBrowser,
+jest.mock("../components/DirectoryBrowser", () => {
+  return function MockDirectoryBrowser() {
+    return <div data-testid="directory-browser">Directory Browser</div>;
   };
 });
 
-// Mock the ConfigComparison component  
-jest.mock('../components/ConfigComparison', () => {
-  const MockConfigComparison = () => <div data-testid="config-comparison">Config Comparison</div>;
-  return {
-    __esModule: true,
-    default: MockConfigComparison,
+jest.mock("../components/ConfigComparison", () => {
+  return function MockConfigComparison() {
+    return <div data-testid="config-comparison">Config Comparison</div>;
   };
 });
 
-// Mock the SchemaEditor component
-jest.mock('../components/SchemaEditor', () => {
-  const MockSchemaEditor = () => <div data-testid="schema-editor">Schema Editor</div>;
-  return {
-    __esModule: true,
-    default: MockSchemaEditor,
+jest.mock("../components/SchemaEditor", () => {
+  return function MockSchemaEditor() {
+    return <div data-testid="schema-editor">Schema Editor</div>;
   };
 });
 
-// Mock the HelpPages component
-jest.mock('../components/HelpPages', () => {
-  const MockHelpPages = () => <div data-testid="help-pages">Help Pages</div>;
-  return {
-    __esModule: true,
-    default: MockHelpPages,
+jest.mock("../components/HelpPages", () => {
+  return function MockHelpPages() {
+    return <div data-testid="help-pages">Help Pages</div>;
   };
 });
+
+// Import App AFTER mocking
+import App from '../App';
 
 // Mock the utility functions
 jest.mock('../utils/fileSystem', () => ({

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, cleanup } from "@testing-library/react";
 import userEvent from '@testing-library/user-event';
 
 // We need to extract MultiSelect component to test it separately
@@ -194,34 +194,31 @@ describe('MultiSelect Component', () => {
 
   test('handles multiple selections correctly', async () => {
     const user = userEvent.setup();
-    const { rerender } = render(<MultiSelect {...defaultProps} />);
-    
-    // Open dropdown
-    const header = screen.getByText('Select options');
+    render(<MultiSelect {...defaultProps} />);
+
+    // Open dropdown and select first option
+    const header = screen.getByText("Select options");
     await user.click(header);
-    
-    // Select first option
-    const checkbox1 = screen.getByRole('checkbox', { name: /option 1/i });
+
+    const checkbox1 = screen.getByRole("checkbox", { name: /option 1/i });
     await user.click(checkbox1);
-    expect(mockOnChange).toHaveBeenCalledWith(['Option 1']);
-    
-    // Reset mock and rerender with updated props
+    expect(mockOnChange).toHaveBeenCalledWith(["Option 1"]);
+
+    // Close dropdown by clicking header again
+    await user.click(header);
+
+    // Now test with Option 1 already selected
     mockOnChange.mockClear();
-    rerender(<MultiSelect {...defaultProps} selected={['Option 1']} />);
-    
-    // Wait for the rerender to complete and open dropdown again
-    await waitFor(() => {
-      expect(screen.getByText('1 selected')).toBeInTheDocument();
-    });
-    
-    const header2 = screen.getByText('1 selected');
+    cleanup();
+    render(<MultiSelect {...defaultProps} selected={["Option 1"]} />);
+
+    // Open dropdown again
+    const header2 = screen.getByText("1 selected");
     await user.click(header2);
-    
-    // Wait for dropdown to open and select second option
-    await waitFor(() => {
-      const checkbox2 = screen.getByRole('checkbox', { name: /option 2/i });
-      return user.click(checkbox2);
-    });
+
+    // Select second option
+    const checkbox2 = screen.getByRole("checkbox", { name: /option 2/i });
+    await user.click(checkbox2);
     
     expect(mockOnChange).toHaveBeenCalledWith(['Option 1', 'Option 2']);
   });

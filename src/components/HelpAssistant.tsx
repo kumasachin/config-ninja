@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from "react";
 import {
   Fab,
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions,
   TextField,
   Button,
   Typography,
@@ -13,19 +12,19 @@ import {
   IconButton,
   Chip,
   CircularProgress,
-  Alert
-} from '@mui/material';
+  Alert,
+} from "@mui/material";
 import {
   HelpOutline as HelpIcon,
   Close as CloseIcon,
   Send as SendIcon,
   Code as CodeIcon,
-  Description as DocsIcon
-} from '@mui/icons-material';
+  Description as DocsIcon,
+} from "@mui/icons-material";
 
 interface Message {
   id: string;
-  type: 'user' | 'support';
+  type: "user" | "support";
   content: string;
   timestamp: Date;
 }
@@ -42,21 +41,29 @@ interface HelpAssistantProps {
 const HelpAssistant: React.FC<HelpAssistantProps> = ({ repositoryContext }) => {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
 
   const defaultContext = {
-    name: 'Config Ninja',
-    description: 'A React TypeScript configuration management application with schema editor, nested object/array support, and PWA capabilities',
-    technologies: ['React 18', 'TypeScript', 'Material-UI', 'Vite', 'Express.js', 'Cypress'],
+    name: "Config Ninja",
+    description:
+      "A React TypeScript configuration management application with schema editor, nested object/array support, and PWA capabilities",
+    technologies: [
+      "React 18",
+      "TypeScript",
+      "Material-UI",
+      "Vite",
+      "Express.js",
+      "Cypress",
+    ],
     features: [
-      '3-level nested object/array schema editing',
-      'JSON Schema generation from samples',
-      'File system API integration',
-      'Configuration comparison',
-      'PWA support',
-      'Automated testing with Cypress'
-    ]
+      "3-level nested object/array schema editing",
+      "JSON Schema generation from samples",
+      "File system API integration",
+      "Configuration comparison",
+      "PWA support",
+      "Automated testing with Cypress",
+    ],
   };
 
   const context = repositoryContext || defaultContext;
@@ -66,13 +73,13 @@ const HelpAssistant: React.FC<HelpAssistantProps> = ({ repositoryContext }) => {
 
     const userMessage: Message = {
       id: Date.now().toString(),
-      type: 'user',
+      type: "user",
       content: input,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
 
-    setMessages(prev => [...prev, userMessage]);
-    setInput('');
+    setMessages((prev) => [...prev, userMessage]);
+    setInput("");
     setLoading(true);
 
     try {
@@ -80,21 +87,22 @@ const HelpAssistant: React.FC<HelpAssistantProps> = ({ repositoryContext }) => {
 
       const supportMessage: Message = {
         id: (Date.now() + 1).toString(),
-        type: 'support',
+        type: "support",
         content: response,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
 
-      setMessages(prev => [...prev, supportMessage]);
+      setMessages((prev) => [...prev, supportMessage]);
     } catch (error) {
-      console.error('Help response error:', error);
+      console.error("Help response error:", error);
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        type: 'support',
-        content: 'Sorry, I encountered an error. Let me provide some general help instead.',
-        timestamp: new Date()
+        type: "support",
+        content:
+          "Sorry, I encountered an error. Let me provide some general help instead.",
+        timestamp: new Date(),
       };
-      setMessages(prev => [...prev, errorMessage]);
+      setMessages((prev) => [...prev, errorMessage]);
     }
 
     setLoading(false);
@@ -103,7 +111,12 @@ const HelpAssistant: React.FC<HelpAssistantProps> = ({ repositoryContext }) => {
   const getHelpResponse = (prompt: string): string => {
     const lowerPrompt = prompt.toLowerCase();
 
-    if (lowerPrompt.includes("start") || lowerPrompt.includes("install") || lowerPrompt.includes("setup") || lowerPrompt.includes("begin")) {
+    if (
+      lowerPrompt.includes("start") ||
+      lowerPrompt.includes("install") ||
+      lowerPrompt.includes("setup") ||
+      lowerPrompt.includes("begin")
+    ) {
       return `So you want to get ${context.name} running? Here's what I usually do:
 
 First, clone the repo and run \`npm install\` to get all dependencies.
@@ -120,7 +133,11 @@ Once it's running, head to http://localhost:3001 and you're good to go!
 Pro tip: Start by creating a simple schema first, then generate a form from it. That's usually the best way to see what this thing can actually do.`;
     }
 
-    if (lowerPrompt.includes("schema") || lowerPrompt.includes("edit") || lowerPrompt.includes("json schema")) {
+    if (
+      lowerPrompt.includes("schema") ||
+      lowerPrompt.includes("edit") ||
+      lowerPrompt.includes("json schema")
+    ) {
       return `The schema editor is honestly the coolest part of this app. Click the "🔄 Change Schema" button to get started.
 
 You've got two ways to work with it:
@@ -134,7 +151,12 @@ The really nice thing is it handles complex nested stuff really well. You can go
 Once you've got your schema, it generates the actual forms in real-time. Pretty neat to watch it work.`;
     }
 
-    if (lowerPrompt.includes("config") || lowerPrompt.includes("save") || lowerPrompt.includes("load") || lowerPrompt.includes("file")) {
+    if (
+      lowerPrompt.includes("config") ||
+      lowerPrompt.includes("save") ||
+      lowerPrompt.includes("load") ||
+      lowerPrompt.includes("file")
+    ) {
       return `The configuration management system handles all your file operations:
 
 You can save configs as JSON files, load them back up, and even compare different versions side by side. Really helpful for tracking what changed between deployments.
@@ -149,7 +171,12 @@ Basic workflow:
 It supports JSON configs, JSON Schema exports, TypeScript interface generation, and even environment variable exports. Pretty comprehensive for most use cases.`;
     }
 
-    if (lowerPrompt.includes("test") || lowerPrompt.includes("cypress") || lowerPrompt.includes("qa") || lowerPrompt.includes("quality")) {
+    if (
+      lowerPrompt.includes("test") ||
+      lowerPrompt.includes("cypress") ||
+      lowerPrompt.includes("qa") ||
+      lowerPrompt.includes("quality")
+    ) {
       return `Testing setup is pretty solid here. We're using Cypress for end-to-end testing.
 
 Run \`npm run test:e2e\` to execute all tests, or \`npm run test:e2e:open\` if you want the interactive GUI (which is way more fun to watch).
@@ -167,7 +194,12 @@ All tests are in the \`cypress/e2e/\` directory. Last I checked, we had 10 scena
 If you're adding new features, definitely write some tests for them. The existing tests are a good template to follow.`;
     }
 
-    if (lowerPrompt.includes("build") || lowerPrompt.includes("deploy") || lowerPrompt.includes("production") || lowerPrompt.includes("hosting")) {
+    if (
+      lowerPrompt.includes("build") ||
+      lowerPrompt.includes("deploy") ||
+      lowerPrompt.includes("production") ||
+      lowerPrompt.includes("hosting")
+    ) {
       return `For building and deployment:
 
 \`npm run build\` creates an optimized production build in the \`dist/\` folder. It includes the PWA manifest and service worker, so users can install it like a native app.
@@ -183,14 +215,23 @@ Deployment options are pretty flexible:
 The PWA features give you offline functionality and app installation capability. Pretty neat for a web app.`;
     }
 
-    if (lowerPrompt.includes("feature") || lowerPrompt.includes("what") || lowerPrompt.includes("capability") || lowerPrompt.includes("can do")) {
-      return `${context.name} is basically a visual tool for managing configurations. Here's what it can do:
+    if (
+      lowerPrompt.includes("feature") ||
+      lowerPrompt.includes("what") ||
+      lowerPrompt.includes("capability") ||
+      lowerPrompt.includes("can do")
+    ) {
+      return `${
+        context.name
+      } is basically a visual tool for managing configurations. Here's what it can do:
 
 The main thing is the schema editor - you can create forms dynamically just by defining the structure. It handles nested objects (up to 3 levels), arrays, all the basic data types.
 
 File management is built in - save configs as JSON, load them back, compare different versions side by side. Pretty handy for keeping track of changes.
 
-It's built with ${context.technologies.join(", ")} so it's got that modern React feel. The whole thing works offline too since it's a PWA - you can literally install it like a native app.
+It's built with ${context.technologies.join(
+        ", "
+      )} so it's got that modern React feel. The whole thing works offline too since it's a PWA - you can literally install it like a native app.
 
 Other neat stuff:
 - TypeScript throughout for type safety
@@ -202,7 +243,12 @@ Other neat stuff:
 It's really useful for API configurations, app settings, basically anywhere you need structured data entry forms but don't want to hand-code them every time.`;
     }
 
-    if (lowerPrompt.includes("architecture") || lowerPrompt.includes("structure") || lowerPrompt.includes("technical") || lowerPrompt.includes("how it works")) {
+    if (
+      lowerPrompt.includes("architecture") ||
+      lowerPrompt.includes("structure") ||
+      lowerPrompt.includes("technical") ||
+      lowerPrompt.includes("how it works")
+    ) {
       return `Technical architecture is pretty straightforward:
 
 Frontend: React 18 with TypeScript, Material-UI for the design system, Vite for fast builds and dev server.
@@ -228,7 +274,14 @@ Key patterns we use:
 - Error boundaries for resilience`;
     }
 
-    if (lowerPrompt.includes("error") || lowerPrompt.includes("problem") || lowerPrompt.includes("issue") || lowerPrompt.includes("troubleshoot") || lowerPrompt.includes("help") || lowerPrompt.includes("broken")) {
+    if (
+      lowerPrompt.includes("error") ||
+      lowerPrompt.includes("problem") ||
+      lowerPrompt.includes("issue") ||
+      lowerPrompt.includes("troubleshoot") ||
+      lowerPrompt.includes("help") ||
+      lowerPrompt.includes("broken")
+    ) {
       return `Common troubleshooting steps:
 
 **Installation issues**: Clear npm cache (\`npm cache clean --force\`), delete node_modules and reinstall. Make sure you're on Node 16+.
@@ -244,7 +297,12 @@ Key patterns we use:
 If you're still stuck, check the help system (? button) or run the tests (\`npm run test:e2e\`) to isolate the issue.`;
     }
 
-    if (lowerPrompt.includes("best practice") || lowerPrompt.includes("tips") || lowerPrompt.includes("recommendation") || lowerPrompt.includes("optimize")) {
+    if (
+      lowerPrompt.includes("best practice") ||
+      lowerPrompt.includes("tips") ||
+      lowerPrompt.includes("recommendation") ||
+      lowerPrompt.includes("optimize")
+    ) {
       return `Some best practices that work well:
 
 **Schema design**: Use clear field names, add helpful descriptions, keep nesting reasonable (max 3 levels), group related fields together.
@@ -260,7 +318,13 @@ If you're still stuck, check the help system (? button) or run the tests (\`npm 
 The help system has comprehensive guides if you need more detailed info on any of these topics.`;
     }
 
-    if (lowerPrompt.includes("develop") || lowerPrompt.includes("contribute") || lowerPrompt.includes("code") || lowerPrompt.includes("extend") || lowerPrompt.includes("customize")) {
+    if (
+      lowerPrompt.includes("develop") ||
+      lowerPrompt.includes("contribute") ||
+      lowerPrompt.includes("code") ||
+      lowerPrompt.includes("extend") ||
+      lowerPrompt.includes("customize")
+    ) {
       return `For development and customization:
 
 Basic setup: Fork the repo, \`npm install\`, \`npm run dev\`, \`npm run test:e2e\`, \`npm run build\`.
@@ -280,7 +344,13 @@ Good areas to contribute:
 Architecture guidelines: Keep components focused, use custom hooks for complex logic, maintain type safety, follow React best practices.`;
     }
 
-    if (lowerPrompt.includes("performance") || lowerPrompt.includes("speed") || lowerPrompt.includes("slow") || lowerPrompt.includes("optimize") || lowerPrompt.includes("fast")) {
+    if (
+      lowerPrompt.includes("performance") ||
+      lowerPrompt.includes("speed") ||
+      lowerPrompt.includes("slow") ||
+      lowerPrompt.includes("optimize") ||
+      lowerPrompt.includes("fast")
+    ) {
       return `Performance is pretty good out of the box:
 
 Vite gives us lightning-fast builds and dev server, code splitting happens automatically, lazy loading for components, PWA caching for offline performance.
@@ -294,7 +364,13 @@ Current benchmarks: < 2 seconds initial load on 3G, < 100ms schema generation, <
 Quick wins: Enable PWA caching, use dynamic imports, optimize images, minimize dependencies, implement virtual scrolling for large lists.`;
     }
 
-    if (lowerPrompt.includes("api") || lowerPrompt.includes("integration") || lowerPrompt.includes("backend") || lowerPrompt.includes("server") || lowerPrompt.includes("endpoint")) {
+    if (
+      lowerPrompt.includes("api") ||
+      lowerPrompt.includes("integration") ||
+      lowerPrompt.includes("backend") ||
+      lowerPrompt.includes("server") ||
+      lowerPrompt.includes("endpoint")
+    ) {
       return `Backend integration uses Express.js on port 8002:
 
 API endpoints:
@@ -353,10 +429,10 @@ Just ask about anything - features, errors, development, architecture, whatever 
         color="primary"
         aria-label="Help Assistant"
         sx={{
-          position: 'fixed',
+          position: "fixed",
           bottom: 16,
           right: 16,
-          zIndex: 1000
+          zIndex: 1000,
         }}
         onClick={() => setOpen(true)}
       >
@@ -370,13 +446,13 @@ Just ask about anything - features, errors, development, architecture, whatever 
         maxWidth="md"
         fullWidth
         sx={{
-          '& .MuiDialog-paper': {
-            height: '70vh',
-            maxHeight: '600px'
-          }
+          "& .MuiDialog-paper": {
+            height: "70vh",
+            maxHeight: "600px",
+          },
         }}
       >
-        <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <HelpIcon color="primary" />
           <Typography variant="h6" sx={{ flex: 1 }}>
             Help Center - {context.name}
@@ -386,19 +462,22 @@ Just ask about anything - features, errors, development, architecture, whatever 
           </IconButton>
         </DialogTitle>
 
-        <DialogContent sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+        <DialogContent
+          sx={{ display: "flex", flexDirection: "column", height: "100%" }}
+        >
           {/* Welcome Message */}
           {messages.length === 0 && (
             <Box sx={{ mb: 2 }}>
               <Alert severity="info" sx={{ mb: 2 }}>
-                👋 Hi! I'm here to help you understand and use this React repository. 
-                Ask me anything about the code, features, or how to get started!
+                👋 Hi! I'm here to help you understand and use this React
+                repository. Ask me anything about the code, features, or how to
+                get started!
               </Alert>
-              
+
               <Typography variant="subtitle2" sx={{ mb: 1 }}>
                 Quick Questions:
               </Typography>
-              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
+              <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 2 }}>
                 {quickQuestions.map((q, index) => (
                   <Chip
                     key={index}
@@ -415,39 +494,46 @@ Just ask about anything - features, errors, development, architecture, whatever 
           )}
 
           {/* Messages */}
-          <Box sx={{ flex: 1, overflow: 'auto', mb: 2 }}>
+          <Box sx={{ flex: 1, overflow: "auto", mb: 2 }}>
             {messages.map((message) => (
               <Box
                 key={message.id}
                 sx={{
-                  display: 'flex',
-                  justifyContent: message.type === 'user' ? 'flex-end' : 'flex-start',
-                  mb: 1
+                  display: "flex",
+                  justifyContent:
+                    message.type === "user" ? "flex-end" : "flex-start",
+                  mb: 1,
                 }}
               >
                 <Paper
                   elevation={1}
                   sx={{
                     p: 2,
-                    maxWidth: '80%',
-                    backgroundColor: message.type === 'user' ? 'primary.main' : 'grey.100',
-                    color: message.type === 'user' ? 'white' : 'text.primary'
+                    maxWidth: "80%",
+                    backgroundColor:
+                      message.type === "user" ? "primary.main" : "grey.100",
+                    color: message.type === "user" ? "white" : "text.primary",
                   }}
                 >
-                  <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
+                  <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
                     {message.content}
                   </Typography>
-                  <Typography variant="caption" sx={{ opacity: 0.7, display: 'block', mt: 0.5 }}>
+                  <Typography
+                    variant="caption"
+                    sx={{ opacity: 0.7, display: "block", mt: 0.5 }}
+                  >
                     {message.timestamp.toLocaleTimeString()}
                   </Typography>
                 </Paper>
               </Box>
             ))}
             {loading && (
-              <Box sx={{ display: 'flex', justifyContent: 'flex-start', mb: 1 }}>
-                <Paper elevation={1} sx={{ p: 2, backgroundColor: 'grey.100' }}>
+              <Box
+                sx={{ display: "flex", justifyContent: "flex-start", mb: 1 }}
+              >
+                <Paper elevation={1} sx={{ p: 2, backgroundColor: "grey.100" }}>
                   <CircularProgress size={20} />
-                  <Typography variant="body2" sx={{ ml: 1, display: 'inline' }}>
+                  <Typography variant="body2" sx={{ ml: 1, display: "inline" }}>
                     Looking up information...
                   </Typography>
                 </Paper>
@@ -456,7 +542,7 @@ Just ask about anything - features, errors, development, architecture, whatever 
           </Box>
 
           {/* Input Area */}
-          <Box sx={{ display: 'flex', gap: 1 }}>
+          <Box sx={{ display: "flex", gap: 1 }}>
             <TextField
               fullWidth
               variant="outlined"
@@ -464,7 +550,7 @@ Just ask about anything - features, errors, development, architecture, whatever 
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
+                if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
                   sendMessage();
                 }
@@ -477,7 +563,7 @@ Just ask about anything - features, errors, development, architecture, whatever 
               variant="contained"
               onClick={sendMessage}
               disabled={loading || !input.trim()}
-              sx={{ minWidth: 'auto', px: 2 }}
+              sx={{ minWidth: "auto", px: 2 }}
             >
               <SendIcon />
             </Button>

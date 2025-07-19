@@ -4,7 +4,6 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions,
   TextField,
   Button,
   Typography,
@@ -13,20 +12,20 @@ import {
   IconButton,
   Chip,
   CircularProgress,
-  Alert
-} from '@mui/material';
+  Alert,
+} from "@mui/material";
 import {
   SmartToy as AIIcon,
   Close as CloseIcon,
   Send as SendIcon,
   Help as HelpIcon,
   Code as CodeIcon,
-  Description as DocsIcon
-} from '@mui/icons-material';
+  Description as DocsIcon,
+} from "@mui/icons-material";
 
 interface Message {
   id: string;
-  type: 'user' | 'assistant';
+  type: "user" | "assistant";
   content: string;
   timestamp: Date;
 }
@@ -43,22 +42,32 @@ interface AIAssistantProps {
 const AIAssistant: React.FC<AIAssistantProps> = ({ repositoryContext }) => {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [aiProvider, setAiProvider] = useState<'ollama' | 'huggingface' | 'none'>('none');
+  const [aiProvider, setAiProvider] = useState<
+    "ollama" | "huggingface" | "none"
+  >("none");
 
   const defaultContext = {
-    name: 'Config Ninja',
-    description: 'A React TypeScript configuration management application with schema editor, nested object/array support, and PWA capabilities',
-    technologies: ['React 18', 'TypeScript', 'Material-UI', 'Vite', 'Express.js', 'Cypress'],
+    name: "Config Ninja",
+    description:
+      "A React TypeScript configuration management application with schema editor, nested object/array support, and PWA capabilities",
+    technologies: [
+      "React 18",
+      "TypeScript",
+      "Material-UI",
+      "Vite",
+      "Express.js",
+      "Cypress",
+    ],
     features: [
-      '3-level nested object/array schema editing',
-      'JSON Schema generation from samples',
-      'File system API integration',
-      'Configuration comparison',
-      'PWA support',
-      'Automated testing with Cypress'
-    ]
+      "3-level nested object/array schema editing",
+      "JSON Schema generation from samples",
+      "File system API integration",
+      "Configuration comparison",
+      "PWA support",
+      "Automated testing with Cypress",
+    ],
   };
 
   const context = repositoryContext || defaultContext;
@@ -71,17 +80,17 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ repositoryContext }) => {
   const checkAIProviders = async () => {
     try {
       // Check if Ollama is running locally
-      const ollamaResponse = await fetch('http://localhost:11434/api/tags');
+      const ollamaResponse = await fetch("http://localhost:11434/api/tags");
       if (ollamaResponse.ok) {
-        setAiProvider('ollama');
+        setAiProvider("ollama");
         return;
       }
     } catch (error) {
-      console.log('Ollama not available');
+      console.log("Ollama not available");
     }
 
     // Fallback to Hugging Face (free tier)
-    setAiProvider('huggingface');
+    setAiProvider("huggingface");
   };
 
   const sendMessage = async () => {
@@ -89,21 +98,21 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ repositoryContext }) => {
 
     const userMessage: Message = {
       id: Date.now().toString(),
-      type: 'user',
+      type: "user",
       content: input,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
 
-    setMessages(prev => [...prev, userMessage]);
-    setInput('');
+    setMessages((prev) => [...prev, userMessage]);
+    setInput("");
     setLoading(true);
 
     try {
-      let response = '';
-      
-      if (aiProvider === 'ollama') {
+      let response = "";
+
+      if (aiProvider === "ollama") {
         response = await getOllamaResponse(input);
-      } else if (aiProvider === 'huggingface') {
+      } else if (aiProvider === "huggingface") {
         response = await getHuggingFaceResponse(input);
       } else {
         response = getStaticResponse(input);
@@ -111,21 +120,21 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ repositoryContext }) => {
 
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
-        type: 'assistant',
+        type: "assistant",
         content: response,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
 
-      setMessages(prev => [...prev, assistantMessage]);
+      setMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
-      console.error('AI response error:', error);
+      console.error("AI response error:", error);
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: "assistant",
         content: "Sorry, something went wrong. Let me try to help anyway.",
         timestamp: new Date(),
       };
-      setMessages(prev => [...prev, errorMessage]);
+      setMessages((prev) => [...prev, errorMessage]);
     }
 
     setLoading(false);
@@ -190,17 +199,27 @@ User wants help with this app - setting it up, understanding how it works, using
     if (
       query.includes("start") ||
       query.includes("setup") ||
-      query.includes("install")
+      query.includes("install") ||
+      query.includes("github") ||
+      query.includes("repository") ||
+      query.includes("deployment") ||
+      query.includes("local")
     ) {
       return `Getting ${context.name} up and running:
 
-First, make sure you have Node.js 18+ installed. Then:
-- Run \`npm install\` to grab dependencies
-- \`npm run dev\` starts the frontend (port 3001)
-- \`npm run dev:server\` starts the backend (port 8002)
-- Or just use \`npm start\` to fire up both
+⚠️ **Important**: This is a GitHub repository that requires local deployment to work properly. You can't just use it online - you need to clone and run it on your machine.
 
-Head to http://localhost:3001 when it's ready.`;
+**Setup Steps:**
+1. Clone the repository from GitHub
+2. Make sure you have Node.js 18+ installed
+3. Run \`npm install\` to grab dependencies
+4. \`npm run dev\` starts the frontend (port 3001)
+5. \`npm run dev:server\` starts the backend (port 8002)
+6. Or use \`npm start\` to fire up both together
+
+Head to http://localhost:3001 when it's ready.
+
+**Why local deployment?** This app works with your local file system to manage configuration files, so it needs to run on your machine to access and modify files safely.`;
     }
 
     if (query.includes("schema") || query.includes("edit")) {
@@ -218,6 +237,27 @@ Handles 3 levels of nesting and arrays of objects. Pretty handy for complex conf
 \`npm run test:e2e:open\` opens the Cypress GUI
 
 Tests are in \`cypress/e2e/\` and cover schema editing, nesting, arrays, the works. All 10 scenarios passing last I checked.`;
+    }
+
+    if (
+      query.includes("why") &&
+      (query.includes("local") || query.includes("deployment"))
+    ) {
+      return `Why local deployment only?
+
+🔒 **Security & File Access**: This app needs to read and write configuration files on your local machine. For security reasons, web browsers don't allow websites to directly access your file system.
+
+🛠️ **File System Integration**: Core features like:
+- Reading/writing config files
+- Directory browsing
+- File comparisons
+- Git integration for version control
+
+All require direct file system access that only works when running locally.
+
+📁 **Real Configuration Management**: You're working with actual config files in your projects, not just demos. The app acts as a local tool to help manage these files safely and efficiently.
+
+That's why it's designed as a **GitHub repository** you clone and run locally - it's like any other development tool in your toolkit!`;
     }
 
     if (query.includes("build") || query.includes("deploy")) {
@@ -243,21 +283,24 @@ Other stuff: TypeScript everywhere, real-time form generation, reverse-engineer 
 
     return `Hey! Need help with ${context.name}?
 
+📦 **This is a GitHub repository** that requires local deployment to work. You'll need to clone it and run it on your machine.
+
 Try asking about:
-- "How to start" - getting set up
+- "How to start" - getting set up from GitHub
 - "Schema editor" - the main editing features  
 - "Testing" - running the test suite
 - "Build" - production deployment
 - "Features" - what this thing actually does
+- "GitHub setup" - repository and local deployment info
 
-Just type whatever you're wondering about.`;
+Just type whatever you're wondering about!`;
   };
 
   const quickQuestions = [
-    { text: "How do I get started?", icon: <HelpIcon /> },
+    { text: "How do I get started from GitHub?", icon: <HelpIcon /> },
     { text: "How does the schema editor work?", icon: <CodeIcon /> },
     { text: "What features are available?", icon: <DocsIcon /> },
-    { text: "How do I run tests?", icon: <CodeIcon /> }
+    { text: "Why local deployment only?", icon: <CodeIcon /> },
   ];
 
   const handleQuickQuestion = (question: string) => {
