@@ -354,39 +354,40 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({ onClose, onSave, existingSc
       <div className="schema-editor-modal">
         <div className="schema-editor-header">
           <h2>🛠 Schema Editor</h2>
-          <button className="close-button" onClick={onClose}>×</button>
+          <button className="close-button" onClick={onClose}>
+            ×
+          </button>
         </div>
-        
+
         <div className="schema-editor-tabs">
-          <button 
-            className={`tab-button ${activeTab === 'edit' ? 'active' : ''}`}
-            onClick={() => setActiveTab('edit')}
+          <button
+            className={`tab-button ${activeTab === "edit" ? "active" : ""}`}
+            onClick={() => setActiveTab("edit")}
           >
             ✏️ Edit Schema
           </button>
-          <button 
-            className={`tab-button ${activeTab === 'generate' ? 'active' : ''}`}
-            onClick={() => setActiveTab('generate')}
+          <button
+            className={`tab-button ${activeTab === "generate" ? "active" : ""}`}
+            onClick={() => setActiveTab("generate")}
           >
             🎯 Generate from Sample
           </button>
         </div>
 
         <div className="schema-editor-content">
-          {activeTab === 'edit' ? (
+          {activeTab === "edit" ? (
             <div className="edit-tab">
               {loadingSchema ? (
                 <div className="loading-state">
                   <div className="loading-spinner"></div>
-                  <p>Loading schema from src/config/tenant-config.schema.json...</p>
+                  <p>
+                    Loading schema from src/config/tenant-config.schema.json...
+                  </p>
                 </div>
               ) : loadError ? (
                 <div className="error-message">
                   {loadError}
-                  <button 
-                    className="retry-button"
-                    onClick={loadExistingSchema}
-                  >
+                  <button className="retry-button" onClick={loadExistingSchema}>
                     🔄 Retry Loading
                   </button>
                 </div>
@@ -396,17 +397,24 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({ onClose, onSave, existingSc
                     <div className="schema-file-indicator">
                       <span className="file-icon">📄</span>
                       <div className="file-details">
-                        <strong>Editing: src/config/tenant-config.schema.json</strong>
+                        <strong>
+                          Editing: src/config/tenant-config.schema.json
+                        </strong>
                         <p>Changes will be saved to this file automatically</p>
                       </div>
                     </div>
-                    
+
                     <div className="form-group">
                       <label>Schema Name</label>
                       <input
                         type="text"
                         value={schema.name}
-                        onChange={(e) => setSchema(prev => ({ ...prev, name: e.target.value }))}
+                        onChange={(e) =>
+                          setSchema((prev) => ({
+                            ...prev,
+                            name: e.target.value,
+                          }))
+                        }
                         placeholder="Enter schema name"
                       />
                     </div>
@@ -414,7 +422,12 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({ onClose, onSave, existingSc
                       <label>Description</label>
                       <textarea
                         value={schema.description}
-                        onChange={(e) => setSchema(prev => ({ ...prev, description: e.target.value }))}
+                        onChange={(e) =>
+                          setSchema((prev) => ({
+                            ...prev,
+                            description: e.target.value,
+                          }))
+                        }
                         placeholder="Describe what this schema is for"
                         rows={3}
                       />
@@ -438,7 +451,12 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({ onClose, onSave, existingSc
                               <input
                                 type="text"
                                 value={field.name}
-                                onChange={(e) => updateField(index, { ...field, name: e.target.value })}
+                                onChange={(e) =>
+                                  updateField(index, {
+                                    ...field,
+                                    name: e.target.value,
+                                  })
+                                }
                                 placeholder="field_name"
                               />
                             </div>
@@ -446,10 +464,12 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({ onClose, onSave, existingSc
                               <label>Type</label>
                               <select
                                 value={field.type}
-                                onChange={(e) => updateField(index, { 
-                                  ...field, 
-                                  type: e.target.value as SchemaField['type'] 
-                                })}
+                                onChange={(e) =>
+                                  updateField(index, {
+                                    ...field,
+                                    type: e.target.value as SchemaField["type"],
+                                  })
+                                }
                               >
                                 <option value="string">String</option>
                                 <option value="number">Number</option>
@@ -463,12 +483,17 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({ onClose, onSave, existingSc
                                 <input
                                   type="checkbox"
                                   checked={field.required}
-                                  onChange={(e) => updateField(index, { ...field, required: e.target.checked })}
+                                  onChange={(e) =>
+                                    updateField(index, {
+                                      ...field,
+                                      required: e.target.checked,
+                                    })
+                                  }
                                 />
                                 Required
                               </label>
                             </div>
-                            <button 
+                            <button
                               className="remove-field-button"
                               onClick={() => removeField(index)}
                             >
@@ -479,21 +504,31 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({ onClose, onSave, existingSc
                             <label>Description</label>
                             <input
                               type="text"
-                              value={field.description || ''}
-                              onChange={(e) => updateField(index, { ...field, description: e.target.value })}
+                              value={field.description || ""}
+                              onChange={(e) =>
+                                updateField(index, {
+                                  ...field,
+                                  description: e.target.value,
+                                })
+                              }
                               placeholder="Describe this field"
                             />
                           </div>
-                          {field.type === 'array' && (
+                          {field.type === "array" && (
                             <div className="field-options">
                               <label>Options (comma-separated)</label>
                               <input
                                 type="text"
-                                value={field.options?.join(', ') || ''}
-                                onChange={(e) => updateField(index, { 
-                                  ...field, 
-                                  options: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
-                                })}
+                                value={field.options?.join(", ") || ""}
+                                onChange={(e) =>
+                                  updateField(index, {
+                                    ...field,
+                                    options: e.target.value
+                                      .split(",")
+                                      .map((s) => s.trim())
+                                      .filter(Boolean),
+                                  })
+                                }
                                 placeholder="option1, option2, option3"
                               />
                             </div>
@@ -502,23 +537,35 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({ onClose, onSave, existingSc
                             <div className="nested-fields">
                               <h5>Nested Fields ({field.children.length})</h5>
                               <div className="nested-field-item">
-                                {field.children.map((childField, childIndex) => (
-                                  <div key={childIndex} className="nested-field-item">
-                                    <div className="nested-field-info">
-                                      <strong>{childField.name}</strong>
-                                      <span className="field-type-badge">{childField.type}</span>
-                                      {childField.required && <span className="required-badge">Required</span>}
-                                    </div>
-                                    <div className="nested-field-description">
-                                      {childField.description}
-                                    </div>
-                                    {childField.options && (
-                                      <div className="nested-field-options">
-                                        Options: {childField.options.join(', ')}
+                                {field.children.map(
+                                  (childField, childIndex) => (
+                                    <div
+                                      key={childIndex}
+                                      className="nested-field-item"
+                                    >
+                                      <div className="nested-field-info">
+                                        <strong>{childField.name}</strong>
+                                        <span className="field-type-badge">
+                                          {childField.type}
+                                        </span>
+                                        {childField.required && (
+                                          <span className="required-badge">
+                                            Required
+                                          </span>
+                                        )}
                                       </div>
-                                    )}
-                                  </div>
-                                ))}
+                                      <div className="nested-field-description">
+                                        {childField.description}
+                                      </div>
+                                      {childField.options && (
+                                        <div className="nested-field-options">
+                                          Options:{" "}
+                                          {childField.options.join(", ")}
+                                        </div>
+                                      )}
+                                    </div>
+                                  )
+                                )}
                               </div>
                             </div>
                           )}
@@ -526,7 +573,10 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({ onClose, onSave, existingSc
                       ))}
                       {schema.fields.length === 0 && (
                         <div className="no-fields">
-                          <p>No fields defined yet. Click "Add Field" to start building your schema.</p>
+                          <p>
+                            No fields defined yet. Click "Add Field" to start
+                            building your schema.
+                          </p>
                         </div>
                       )}
                     </div>
@@ -535,17 +585,34 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({ onClose, onSave, existingSc
               )}
             </div>
           ) : (
-            <div className="generate-tab">
-              <div className="generate-info">
+            <div
+              className="generate-tab"
+              style={{
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              <div
+                className="generate-info"
+                style={{ marginBottom: "16px", flexShrink: 0 }}
+              >
                 <h3>🎯 Generate Schema from Sample Configuration</h3>
                 <p>
-                  Paste a sample JSON configuration below, and we'll automatically generate 
-                  a schema based on its structure and data types.
+                  Paste a sample JSON configuration below, and we'll
+                  automatically generate a schema based on its structure and
+                  data types.
                 </p>
               </div>
 
-              <div className="sample-input">
-                <label>Sample Configuration (JSON)</label>
+              <div
+                className="sample-input"
+                style={{
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
                 <textarea
                   value={sampleConfig}
                   onChange={(e) => setSampleConfig(e.target.value)}
@@ -560,15 +627,29 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({ onClose, onSave, existingSc
     "timeout": 30000
   }
 }`}
-                  rows={15}
+                  style={{
+                    width: "100%",
+                    minHeight: "50vh",
+                    height: "100%",
+                    flex: 1,
+                    resize: "none",
+                    border: "1px solid #ddd",
+                    borderRadius: "4px",
+                    padding: "12px",
+                    fontFamily: "monospace",
+                    fontSize: "14px",
+                  }}
                 />
                 {generationError && (
                   <div className="error-message">{generationError}</div>
                 )}
               </div>
 
-              <div className="generate-actions">
-                <button 
+              <div
+                className="generate-actions"
+                style={{ marginTop: "16px", flexShrink: 0 }}
+              >
+                <button
                   className="generate-button"
                   onClick={generateSchemaFromSample}
                   disabled={!sampleConfig.trim()}
@@ -588,12 +669,12 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({ onClose, onSave, existingSc
             <button className="cancel-button" onClick={onClose}>
               Cancel
             </button>
-            <button 
-              className="save-button" 
+            <button
+              className="save-button"
               onClick={handleSave}
               disabled={savingSchema}
             >
-              {savingSchema ? '💾 Saving...' : '💾 Save to Schema File'}
+              {savingSchema ? "💾 Saving..." : "💾 Save to Schema File"}
             </button>
           </div>
         </div>
