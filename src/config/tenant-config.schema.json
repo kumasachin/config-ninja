@@ -19,34 +19,46 @@
         "enabledModules": {
           "type": "array",
           "description": "List of enabled modules for the platform",
-          "enum": [
-            "reporting",
-            "analytics",
-            "audit-log",
-            "notifications",
-            "user-management"
-          ]
+          "items": {
+            "type": "string",
+            "enum": [
+              "reporting",
+              "analytics",
+              "audit-log",
+              "notifications",
+              "user-management"
+            ]
+          },
+          "uniqueItems": true
         },
         "betaFeatures": {
           "type": "array",
           "description": "List of beta features to enable",
-          "enum": [
-            "ai-suggestions",
-            "tenant-isolation",
-            "advanced-search",
-            "real-time-sync"
-          ]
+          "items": {
+            "type": "string",
+            "enum": [
+              "ai-suggestions",
+              "tenant-isolation",
+              "advanced-search",
+              "real-time-sync"
+            ]
+          },
+          "uniqueItems": true
         },
         "roles": {
           "type": "array",
           "description": "Available user roles in the system",
-          "enum": [
-            "admin",
-            "editor",
-            "viewer",
-            "manager",
-            "guest"
-          ]
+          "items": {
+            "type": "string",
+            "enum": [
+              "admin",
+              "editor",
+              "viewer",
+              "manager",
+              "guest"
+            ]
+          },
+          "uniqueItems": true
         },
         "enableAdvancedReporting": {
           "type": "boolean",

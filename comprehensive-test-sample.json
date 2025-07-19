@@ -1,0 +1,64 @@
+{
+  "testBasicFields": {
+    "stringField": "test value",
+    "numberField": 42,
+    "booleanField": true
+  },
+  "testSimpleArray": [
+    "option1",
+    "option2", 
+    "option3"
+  ],
+  "testObjectField": {
+    "nestedString": "nested value",
+    "nestedNumber": 100,
+    "nestedBoolean": false
+  },
+  "testObjectArray": [
+    {
+      "itemName": "First Item",
+      "itemValue": 25,
+      "itemActive": true
+    },
+    {
+      "itemName": "Second Item", 
+      "itemValue": 50,
+      "itemActive": false
+    }
+  ],
+  "testDeepNesting": {
+    "level1": {
+      "level1Field": "First level",
+      "level2": {
+        "level2Field": "Second level",
+        "level3": {
+          "level3Field": "Third level - maximum depth"
+        }
+      }
+    }
+  },
+  "testComplexMixed": {
+    "users": [
+      {
+        "username": "admin",
+        "roles": ["administrator", "user"],
+        "profile": {
+          "email": "admin@test.com",
+          "settings": {
+            "theme": "dark",
+            "notifications": true
+          }
+        }
+      }
+    ],
+    "configuration": {
+      "database": {
+        "connection": {
+          "host": "localhost",
+          "port": 5432
+        }
+      },
+      "features": ["auth", "analytics", "reporting"]
+    }
+  }
+}

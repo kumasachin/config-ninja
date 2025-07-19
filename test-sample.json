@@ -1,0 +1,42 @@
+{
+  "appConfig": {
+    "name": "Test Application",
+    "version": "2.0.0",
+    "enabled": true,
+    "features": ["authentication", "analytics", "reporting"],
+    "database": {
+      "host": "localhost",
+      "port": 5432,
+      "ssl": true,
+      "connection": {
+        "timeout": 30,
+        "retries": 3
+      }
+    },
+    "users": [
+      {
+        "username": "admin",
+        "role": "administrator", 
+        "permissions": ["read", "write", "delete"],
+        "profile": {
+          "email": "admin@test.com",
+          "active": true,
+          "settings": {
+            "theme": "dark",
+            "notifications": true
+          }
+        }
+      }
+    ],
+    "modules": [
+      {
+        "name": "user-management",
+        "enabled": true,
+        "config": {
+          "maxUsers": 1000,
+          "features": ["sso", "rbac"]
+        }
+      }
+    ]
+  }
+}
