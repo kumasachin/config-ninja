@@ -18,11 +18,6 @@ app.use(morgan('combined'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-// Serve static files in production
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../dist')))
-}
-
 // API Routes
 app.get('/api/health', (req, res) => {
   res.json({ 
@@ -322,7 +317,11 @@ app.post('/api/open-folder', (req, res) => {
 
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, "../dist")));
+  app.use(express.static(path.join(__dirname, '../dist')))
+  
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../dist/index.html'))
+  })
 }
 
 // Error handling middleware
@@ -331,17 +330,10 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Something went wrong!' })
 })
 
-// Handle React routing in production - catch all non-API routes
-if (process.env.NODE_ENV === 'production') {
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../dist/index.html'))
-  })
-} else {
-  // 404 handler for development
-  app.use((req, res) => {
-    res.status(404).json({ error: "Route not found" });
-  });
-}
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ error: 'Route not found' })
+})
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`)
