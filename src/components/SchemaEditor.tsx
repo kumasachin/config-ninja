@@ -48,23 +48,30 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({ onClose, onSave, existingSc
     setLoadError('');
     
     try {
-      // Load the tenant-config.schema.json file
-      const response = await fetch(`http://localhost:8002/api/read-file?path=${encodeURIComponent(SCHEMA_FILE_PATH)}`);
+      // Load the tenant-config.schema.json file using relative URL with proxy
+      const response = await fetch(
+        `/api/read-file?path=${encodeURIComponent(SCHEMA_FILE_PATH)}`
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to load schema file');
+        throw new Error(`Failed to load schema file: ${response.statusText}`);
       }
 
       const data = await response.json();
+      console.log("Schema data received:", data);
+
       const jsonSchema = JSON.parse(data.content);
-      
+      console.log("Parsed JSON schema:", jsonSchema);
+
       // Convert JSON Schema to our internal schema format
       const convertedSchema = convertJsonSchemaToInternalFormat(jsonSchema);
+      console.log("Converted schema:", convertedSchema);
       setSchema(convertedSchema);
-      
     } catch (error) {
       console.error('Error loading schema:', error);
-      setLoadError('Failed to load existing schema file. Please try again.');
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      setLoadError(`Failed to load existing schema file: ${errorMessage}`);
     } finally {
       setLoadingSchema(false);
     }
