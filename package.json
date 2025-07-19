@@ -12,7 +12,11 @@
     "dev:server": "nodemon server/index.js",
     "dev:fs-server": "nodemon --exec tsx src/server/fileSystemApi.ts",
     "start": "concurrently \"npm run dev\" \"npm run dev:server\" \"npm run dev:fs-server\"",
+    "start:prod": "node server/index.js",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint . --ext ts,tsx --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "type-check": "tsc --noEmit",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -20,7 +24,12 @@
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
     "test:e2e": "start-server-and-test \"npm run dev\" 3001 \"npm run dev:server\" 8002 \"cypress run\"",
-    "test:e2e:open": "start-server-and-test \"npm run dev\" 3001 \"npm run dev:server\" 8002 \"cypress open\""
+    "test:e2e:open": "start-server-and-test \"npm run dev\" 3001 \"npm run dev:server\" 8002 \"cypress open\"",
+    "prepare": "husky install"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
   },
   "proxy": "http://localhost:8002",
   "keywords": [
