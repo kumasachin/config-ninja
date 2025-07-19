@@ -19,6 +19,14 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
 // API Routes
+app.get('/health', (req, res) => {
+  res.json({ 
+    status: 'healthy', 
+    timestamp: new Date().toISOString(),
+    version: '1.0.0'
+  })
+})
+
 app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'healthy', 
