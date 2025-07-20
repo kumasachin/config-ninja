@@ -39,9 +39,7 @@ import {
   Schema as SchemaIcon,
   AutoAwesome as AutoAwesomeIcon,
   Storage as StorageIcon,
-} from '@mui/icons-material';
-import WorkflowDiagram from './WorkflowDiagram';
-
+} from "@mui/icons-material";
 interface HelpPagesProps {
   open: boolean;
   onClose: () => void;
@@ -297,7 +295,6 @@ const HelpPages: React.FC<HelpPagesProps> = ({ open, onClose }) => {
               </ListItem>
             </List>
 
-            <WorkflowDiagram />
             <DataFlowDiagram />
           </Box>
         );
