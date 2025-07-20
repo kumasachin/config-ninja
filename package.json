@@ -3,9 +3,13 @@
   "version": "1.0.0",
   "description": "A config-creator application with PWA support",
   "type": "module",
+  "author": "Sachin Kumar",
+  "license": "MIT",
+  "private": true,
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build",
+    "build:full": "tsc && vite build",
     "preview": "vite preview",
     "server": "node server/index.js",
     "fs-server": "tsx src/server/fileSystemApi.ts",
@@ -22,6 +26,9 @@
     "cypress:run": "cypress run",
     "test:e2e": "start-server-and-test \"npm run dev\" 3001 \"npm run dev:server\" 8002 \"cypress run\"",
     "test:e2e:open": "start-server-and-test \"npm run dev\" 3001 \"npm run dev:server\" 8002 \"cypress open\""
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "proxy": "http://localhost:8002",
   "keywords": [
@@ -42,7 +49,11 @@
     "express": "^4.18.2",
     "morgan": "^1.10.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "typescript": "^5.0.2",
+    "vite": "^4.4.5",
+    "@vitejs/plugin-react": "^4.0.3",
+    "vite-plugin-pwa": "^0.16.4"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.6.3",
@@ -57,7 +68,6 @@
     "@types/react-dom": "^18.2.7",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
-    "@vitejs/plugin-react": "^4.0.3",
     "concurrently": "^8.2.0",
     "cypress": "^13.17.0",
     "eslint": "^8.45.0",
@@ -70,9 +80,6 @@
     "start-server-and-test": "^2.0.12",
     "ts-jest": "^29.4.0",
     "tsx": "^3.12.7",
-    "typescript": "^5.0.2",
-    "vite": "^4.4.5",
-    "vite-plugin-pwa": "^0.16.4",
     "workbox-window": "^7.0.0"
   }
 }
